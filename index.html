@@ -1,0 +1,617 @@
+<html>
+<head>
+<meta charset="utf-8" />
+<title>STL Knob Designer</title>
+<style>
+html {
+    font-size:14px;
+}
+body {
+    background:#1f243a;
+    color:#e0e0e0;
+}
+td {
+    font-size: 13.5px;
+    border: 1px solid #668;
+    padding:0px 5px;
+}
+canvas {
+    border:1px solid #666666;
+    width:480px;
+    height:480px;
+}
+.param {
+    vertical-align: middle;
+    height:18px;
+    width:60px;
+}
+#main {
+    margin:10px auto;
+    width:1030px;
+    border:1px solid #666;
+}
+</style>
+<body>
+<h1>STL Knob Designer</h1>
+<div id="main">
+    <button onclick="app.export()">Export as STL</button> <button onclick="app.save()">Save Param (JSON)</button> <button onclick="app.load()">Load Param (JSON)</button>
+<div style="display:flex">
+<canvas id="canvas" ></canvas>
+<div style="height:630px;overflow-y:scroll">
+    <div>
+    <table>
+        <tr><td rowspan="4">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
+        <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
+        <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
+        <tr><td>Height(mm)</td><td><webaudio-slider id="topHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="topHeight"></webaudio-param></td></tr>
+        <tr><td rowspan="9">BODY</td><td>Subdivide</td><td><webaudio-slider id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-slider></td><td><webaudio-param link="bodySubdiv"></webaudio-param></td></tr>
+        <tr><td>TopDiameter(%)</td><td><webaudio-slider id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-slider></td><td><webaudio-param link="bodyTopDiameter"></webaudio-param></td></tr>
+        <tr><td>TopBevel(mm)</td><td><webaudio-slider id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></webaudio-slider></td><td><webaudio-param link="bodyTopBevel"></webaudio-param></td></tr>
+        <tr><td>BottomDiameter(mm)</td><td><webaudio-slider id="bodyBottomDiameter" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyBottomDiameter"></webaudio-param></td></tr>
+        <tr><td>Height(mm)</td><td><webaudio-slider id="bodyHeight" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyHeight"></webaudio-param></td></tr>
+        <tr><td>KnurlForm</td><td><webaudio-slider id="bodyKnurlForm" oninput="editParam(this)" min="0" max="2" step="1" tracking="abs" conv="['None','Sin','Sqr'][x]"></webaudio-slider></td><td><webaudio-param link="bodyKnurlForm"></webaudio-param></td></tr>
+        <tr><td>KnurlNum</td><td><webaudio-slider id="bodyKnurlNum" oninput="editParam(this)" min="0" max="36" step="1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlNum"></webaudio-param></td></tr>
+        <tr><td>KnurlDepth(mm)</td><td><webaudio-slider id="bodyKnurlDepth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlDepth"></webaudio-param></td></tr>
+        <tr><td>KnurlWidth</td><td><webaudio-slider id="bodyKnurlWidth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlWidth"></webaudio-param></td></tr>
+        <tr><td rowspan="4">SKIRT</td><td>Subdivide</td><td><webaudio-slider id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="skirtSubdiv"></webaudio-param></td></tr>
+        <tr><td>Diameter(Body+mm)</td><td><webaudio-slider id="skirtDiameter" oninput="editParam(this)" min="0" max="10.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtDiameter"></webaudio-param></td></tr>
+        <tr><td>Bevel(mm)</td><td><webaudio-slider id="skirtBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtBevel"></webaudio-param></td></tr>
+        <tr><td>Height(mm)</td><td><webaudio-slider id="skirtHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtHeight"></webaudio-param></td></tr>
+        <tr><td rowspan="4">POINTER</td><td>Length(mm)</td><td><webaudio-slider id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerLength"></webaudio-param></td></tr>
+        <tr><td>Width(mm)</td><td><webaudio-slider id="pointerWidth" oninput="editParam(this)" min="0.5" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerWidth"></webaudio-param></td></tr>
+        <tr><td>Height(mm)</td><td><webaudio-slider id="pointerHeight" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerHeight"></webaudio-param></td></tr>
+        <tr><td>Bevel(mm)</td><td><webaudio-slider id="pointerBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerBevel"></webaudio-param></td></tr>
+    </table>
+    </div>
+    </div>
+</div>
+</div>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.142.0/build/three.module",
+            "three/": "https://unpkg.com/three@0.142.0/",
+            "three/addons/": "https://unpkg.com/three@0.142.0/examples/jsm/"
+        }
+    }
+</script>
+<script>
+    WebAudioControlsOptions={
+        sliderWidth:140,
+        paramWidth:60
+    }
+</script>
+<script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js"></script>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
+import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+
+
+const paramfile = {
+    program: "STLKnobDesigner",
+    version: "0.1.0",
+    params: {
+        topSubdiv:36,
+        topTopDiameter:80,
+        topBottomDiameter:80,
+        topHeight:1.0,
+        bodySubdiv:72,
+        bodyKnurlForm:1,
+        bodyKnurlNum:12,
+        bodyKnurlDepth:0.6,
+        bodyKnurlWidth:0,
+        bodyTopDiameter: 80,
+        bodyTopBevel:0.5,
+        bodyBottomDiameter: 15.0,
+        bodyHeight:15.0,
+        skirtSubdiv: 36,
+        skirtDiameter: 4.0,
+        skirtBevel: 0.5,
+        skirtHeight: 2.0,
+        pointerLength: 2.0,
+        pointerWidth: 1.5,
+        pointerHeight: 2.0,
+        pointerBevel: 1.2,
+    }
+}
+window.params = paramfile.params;
+
+class Rectangular {
+    constructor() {
+        this.geo = new THREE.BufferGeometry();
+        this.layers = [];
+    }
+    clear() {
+        this.layers = [];
+    }
+    addRect(layer) {
+        this.layers.push(layer);
+    }
+    createGeo() {
+        const vtx = [];
+        const indices = [];
+        for(let l=0; l < this.layers.length; ++l) {
+            const layer = this.layers[l];
+            vtx.push(layer.x1, layer.y1, layer.z);
+            vtx.push(layer.x2, layer.y1, layer.z);
+            vtx.push(layer.x1, layer.y2, layer.z);
+            vtx.push(layer.x2, layer.y2, layer.z);
+        }
+        this.vertices = new Float32Array(vtx);
+        indices.push(1, 0, 2);
+        indices.push(1, 2, 3);
+        let vb = 0;
+        for(let l=1; l < this.layers.length; ++l, vb+=4) {
+            indices.push(vb+0, vb+5, vb+4);
+            indices.push(vb+1, vb+5, vb+0);
+            indices.push(vb+2, vb+0, vb+4);
+            indices.push(vb+2, vb+4, vb+6);
+            indices.push(vb+5, vb+1, vb+7);
+            indices.push(vb+7, vb+1, vb+3);
+            indices.push(vb+3, vb+2, vb+6);
+            indices.push(vb+7, vb+3, vb+6);
+        }
+        indices.push(vb+0, vb+1, vb+2);
+        indices.push(vb+2, vb+1, vb+3);
+        this.geo.setIndex(indices);
+        this.geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vtx), 3));
+        this.geo.computeVertexNormals();
+        return this.geo;
+    }
+}
+class Tube {
+    constructor() {
+        this.geo = new THREE.BufferGeometry();
+        this.layers = [];
+    }
+    clear() {
+        this.layers = [];
+    }
+    wave(th) {
+        switch(params.bodyKnurlForm) {
+        case 0:
+            return 0;
+        case 1:
+            return Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -params.bodyKnurlWidth));
+        case 2:
+            const t = Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -params.bodyKnurlWidth));
+            if(t>=0.5) return 1;
+            return -1;
+        }
+    }
+    knurling(th) {
+        return this.wave(th);
+    }
+    addCircle(layer) {
+        this.layers.push(layer);
+    }
+    createGeo(divr, knurlNum, knurlDepth, knurlType) {
+        this.geo = new THREE.BufferGeometry();
+        const vtx = [];
+        const indices = [];
+        for(let l=0; l < this.layers.length; ++l) {
+            const r1 = this.layers[l].r1;
+            const r2 = this.layers[l].r2;
+            const z = this.layers[l].z;
+            for(let i = 0; i < divr; ++i) {
+                const th = 2*Math.PI*i/divr;
+                const kd = knurlDepth * this.knurling(th * knurlNum);
+                const x = Math.sin(th);
+                const y = Math.cos(th);
+                vtx.push(x * (r1 + kd), y * (r1 + kd), z);
+                vtx.push(x * r2, y * r2, z);
+            }
+        }
+        this.vertices = new Float32Array(vtx);
+        let vtxbase;
+        const vtxmax = divr*2;
+        for(let i = 0; i < divr; ++i){
+            const j = i * 2;
+            const j2 = (j+2)%vtxmax;
+            const j3 = (j+3)%vtxmax;
+            indices.push(j2, j+1, j);
+            indices.push(j+1, j2, j3);
+        }
+        for(let l = 0; l < this.layers.length-1; ++l) {
+            vtxbase = l*divr*2;
+            for(let i = 0; i < divr; ++i) {
+                const j = i * 2;
+                const j2 = (j+2)%vtxmax;
+                indices.push(j+vtxbase, j+divr*2+vtxbase, ((j+2)%vtxmax)+vtxbase);
+                indices.push(((j+2)%vtxmax)+vtxbase, j+divr*2+vtxbase, j2+divr*2+vtxbase);
+                indices.push(j+divr*2+1+vtxbase, j+1+vtxbase, ((j+2)%vtxmax)+1+vtxbase);
+                indices.push(j+divr*2+1+vtxbase, ((j+2)%vtxmax)+1+vtxbase, j2+divr*2+1+vtxbase);
+            }
+        }
+        vtxbase = (this.layers.length-1)*divr*2;
+        for(let i = 0; i < divr; ++i){
+            const j = i * 2 + vtxbase;
+            const j2 = (j+2)%vtxmax + vtxbase;
+            const j3 = (j+3)%vtxmax + vtxbase;
+            indices.push(j, j+1, j2);
+            indices.push(j3, j2, j+1);
+        }
+
+        this.geo.setIndex(indices);
+        this.geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vtx), 3));
+        this.geo.computeVertexNormals();
+        return this.geo;
+    }
+}
+class Top {
+    constructor() {
+        this.tube = new Tube();
+        this.geo = null;
+        this.mesh = null;
+    }
+    getGeo() {
+        this.tube.clear();
+        this.tube.addCircle({r1:(params.bodyBottomDiameter * params.bodyTopDiameter*0.01 * params.topBottomDiameter*0.01)*0.5, r2:0, z:params.bodyHeight});
+        this.tube.addCircle({r1:(params.bodyBottomDiameter * params.bodyTopDiameter*0.01 * params.topBottomDiameter*0.01) * params.topTopDiameter*0.01 *0.5, r2:0, z:params.bodyHeight+params.topHeight});
+        this.geo = this.tube.createGeo(params.topSubdiv, 0, 0);
+    }
+    update() {
+        if(this.mesh) {
+            app.scene.remove(this.mesh);
+            this.mesh.geometry.dispose();
+        }
+        this.getGeo();
+        this.mesh = new THREE.Mesh(this.geo, app.material);
+        app.scene.add(this.mesh);
+    }
+}
+class Lid {
+    constructor() {
+        this.tube = new Tube();
+        this.geo = null;
+        this.mesh = null;
+        this.subdiv = 36;
+    }
+    getGeo() {
+        this.tube.clear();
+        this.tube.addCircle({r1:5.5, r2:0, z:10.0});
+        this.tube.addCircle({r1:5.5, r2:0, z:params.bodyHeight});
+        this.geo = this.tube.createGeo(this.subdiv, 0, 0);
+    }
+    update() {
+        if(this.mesh) {
+            app.scene.remove(this.mesh);
+            this.mesh.geometry.dispose();
+        }
+        this.getGeo();
+        this.mesh = new THREE.Mesh(this.geo, app.material);
+        app.scene.add(this.mesh);
+    }
+}
+class Body {
+    constructor() {
+        this.tube = new Tube();
+        this.geo = null;
+        this.mesh = null;
+    }
+    getGeo() {
+        const topDia = (params.bodyBottomDiameter * params.bodyTopDiameter*0.01)*0.5;
+        this.tube.clear();
+        this.tube.addCircle({r1:params.bodyBottomDiameter*0.5, r2:5.5, z:0.0});
+        this.tube.addCircle({r1:topDia, r2:5.5, z:params.bodyHeight - params.bodyTopBevel});
+        this.tube.addCircle({r1:topDia - params.bodyTopBevel, r2:5.5, z:params.bodyHeight});
+        this.geo = this.tube.createGeo(params.bodySubdiv, params.bodyKnurlNum, params.bodyKnurlDepth);
+    }
+    update() {
+        if(this.mesh) {
+            app.scene.remove(this.mesh);
+            this.mesh.geometry.dispose();
+        }
+        this.getGeo();
+        this.mesh = new THREE.Mesh(this.geo, app.material);
+        app.scene.add(this.mesh);
+    }
+}
+class Skirt {
+    constructor() {
+        this.tube = new Tube();
+        this.geo = null;
+        this.mesh = null;
+    }
+    getGeo() {
+        this.tube.clear();
+        this.tube.addCircle({r1:(params.bodyBottomDiameter + params.skirtDiameter)*0.5, r2:5.5, z:-params.skirtHeight});
+        this.tube.addCircle({r1:(params.bodyBottomDiameter + params.skirtDiameter)*0.5, r2:5.5, z:-params.skirtBevel});
+        this.tube.addCircle({r1:(params.bodyBottomDiameter + params.skirtDiameter - params.skirtBevel * 2)*0.5, r2:5.5, z:0.0});
+        this.geo = this.tube.createGeo(params.skirtSubdiv, 0, 0);
+    }
+    update() {
+        if(this.mesh) {
+            app.scene.remove(this.mesh);
+            this.mesh.geometry.dispose();
+        }
+        this.getGeo();
+        this.mesh = new THREE.Mesh(this.geo, app.material);
+        app.scene.add(this.mesh);
+    }
+}
+class Pointer {
+    constructor() {
+        this.rect = new Rectangular();
+        this.mesh = null;
+        this.geo = new THREE.BufferGeometry();
+    }
+    getGeo() {
+        this.rect.clear();
+        const b = Math.min(params.pointerHeight, params.pointerBevel);
+        const z0 = 0;
+        const z1 = params.bodyHeight;
+        const z2 = params.bodyHeight + Math.max(0, params.pointerHeight - b);
+        const z3 = params.bodyHeight + params.pointerHeight;
+        const y0 = params.bodyBottomDiameter*0.5 + params.pointerLength;
+        const y1 = params.bodyBottomDiameter*params.bodyTopDiameter*0.01*0.5 + params.pointerLength;
+        const y2 = y1 + (y1 - y0) * (z2 - z1) / (z1 - z0);
+        const y3 = y1 + (y1 - y0) * (z3 - z1) / (z1 - z0) - b;
+        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:5.5, x2:params.pointerWidth*0.5, y2:y0, z:z0});
+        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:5.5, x2:params.pointerWidth*0.5, y2:y1, z:z1});
+        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:0, x2:params.pointerWidth*0.5, y2:y1, z:z1});
+        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:0, x2:params.pointerWidth*0.5, y2:y2, z:z2});
+        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:b, x2:params.pointerWidth*0.5, y2:y3, z:z3});
+        this.geo = this.rect.createGeo();
+    }
+    update() {
+        if(this.mesh) {
+            app.scene.remove(this.mesh);
+            this.mesh.geometry.dispose();
+        }
+        this.getGeo();
+        this.mesh = new THREE.Mesh(this.geo, app.material);
+        app.scene.add(this.mesh);
+    }
+}
+class App {
+    constructor() {
+        this.width = 480;
+        this.height = 630;
+
+    }
+    editParam(event) {
+//        console.log("editParam",event.id, event.value);
+        switch(event.id) {
+        case "topSubdiv":
+            params.topSubdiv = event.value;
+            app.partsTop.update();
+            break;
+        case "topTopDiameter":
+            params.topTopDiameter = event.value;
+            app.partsTop.update();
+            break;
+        case "topBottomDiameter":
+            params.topBottomDiameter = event.value;
+            app.partsTop.update();
+            break;
+        case "topHeight":
+            params.topHeight = event.value;
+            app.partsTop.update();
+            break;
+        case "bodySubdiv":
+            params.bodySubdiv = event.value;
+            app.partsBody.update();
+            break;
+        case "bodyTopDiameter":
+            params.bodyTopDiameter = event.value;
+            app.partsBody.update();
+            app.partsTop.update();
+            app.partsPointer.update();
+            break;
+        case "bodyTopBevel":
+            params.bodyTopBevel = event.value;
+            app.partsBody.update();
+            break;
+        case "bodyKnurlForm":
+            params.bodyKnurlForm = event.value;
+            app.partsBody.update();
+            break;
+        case "bodyKnurlNum":
+            params.bodyKnurlNum = event.value;
+            app.partsBody.update();
+            break;
+        case "bodyKnurlDepth":
+            params.bodyKnurlDepth = event.value;
+            app.partsBody.update();
+            break;
+        case "bodyKnurlWidth":
+            params.bodyKnurlWidth = event.value;
+            app.partsBody.update();
+            break;
+        case "bodyBottomDiameter":
+            params.bodyBottomDiameter = event.value;
+            app.partsBody.update();
+            app.partsSkirt.update();
+            app.partsPointer.update();
+            break;
+        case "bodyHeight":
+            params.bodyHeight = event.value;
+            app.partsTop.update();
+            app.partsBody.update();
+            app.partsLid.update();
+            app.partsSkirt.update();
+            app.partsPointer.update();
+            break;
+        case "skirtSubdiv":
+            params.skirtSubdiv = event.value;
+            app.partsSkirt.update();
+            break;
+        case "skirtHeight":
+            params.skirtHeight = event.value;
+            app.partsSkirt.update();
+            break;
+        case "skirtBevel":
+            params.skirtBevel = event.value;
+            app.partsSkirt.update();
+            break;
+        case "skirtDiameter":
+            params.skirtDiameter = event.value;
+            app.partsSkirt.update();
+            break;
+        case "pointerLength":
+            params.pointerLength = event.value;
+            app.partsPointer.update();
+            break;
+        case "pointerWidth":
+            params.pointerWidth = event.value;
+            app.partsPointer.update();
+            break;
+        case "pointerHeight":
+            params.pointerHeight = event.value;
+            app.partsPointer.update();
+            break;
+        case "pointerBevel":
+            params.pointerBevel = event.value;
+            app.partsPointer.update();
+            break;
+        }
+    }
+    init() {
+        console.log("init");
+
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector("#canvas"),
+        });
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(this.width, this.height);
+
+        this.scene = new THREE.Scene();
+
+        this.camera = new THREE.PerspectiveCamera(
+            45,
+            this.width / this.height,
+            1,
+            10000
+        );
+        this.camera.position.set(50, 30, 80);
+        this.camera.lookAt(0, 0, 0);
+
+        const light1 = new THREE.AmbientLight(0xffffff, 0.1);
+        this.scene.add(light1);
+        const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+        light2.position.set(1, 1, 1);
+        this.scene.add(light2);
+        const light3 = new THREE.DirectionalLight(0xffffff, 0.5);
+        light3.position.set(-1,-0.5,-1);
+        this.scene.add(light3);
+
+        this.material = new THREE.MeshPhongMaterial({color: 0xffffff, flatShading:true});
+    
+        this.stlLoader = new STLLoader();
+        this.stlLoader.load('./Shaft/Shaft_Knurled.stl', (geoShaft)=> {
+            this.meshShaft = new THREE.Mesh(geoShaft, this.material);
+            this.scene.add(this.meshShaft);
+        })
+        this.stlExporter = new STLExporter();
+
+        this.partsTop = new Top();
+        this.partsTop.update();
+        this.partsLid = new Lid();
+        this.partsLid.update();
+        this.partsBody = new Body();
+        this.partsBody.update();
+        this.partsSkirt = new Skirt();
+        this.partsSkirt.update();
+        this.partsPointer = new Pointer();
+        this.partsPointer.update();
+        this.controls = new OrbitControls(this.camera, canvas);
+
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.2;
+
+//        const axesHelper = new THREE.AxesHelper(35);
+//        axesHelper.position.set(0,0,0);
+//        this.scene.add(axesHelper);
+        this.tick();
+    }
+    updateParams() {
+        document.getElementById("topSubdiv").setValue(params.topSubdiv, true);
+        document.getElementById("topTopDiameter").setValue(params.topTopDiameter, true);
+        document.getElementById("topBottomDiameter").setValue(params.topBottomDiameter, true);
+        document.getElementById("topHeight").setValue(params.topHeight, true);
+        document.getElementById("bodySubdiv").setValue(params.bodySubdiv, true);
+        document.getElementById("bodyTopDiameter").setValue(params.bodyTopDiameter, true);
+        document.getElementById("bodyTopBevel").setValue(params.bodyTopBevel, true);
+        document.getElementById("bodyBottomDiameter").setValue(params.bodyBottomDiameter, true);
+        document.getElementById("bodyHeight").setValue(params.bodyHeight, true);
+        document.getElementById("bodyKnurlForm").setValue(params.bodyKnurlForm, true);
+        document.getElementById("bodyKnurlNum").setValue(params.bodyKnurlNum, true);
+        document.getElementById("bodyKnurlDepth").setValue(params.bodyKnurlDepth, true);
+        document.getElementById("bodyKnurlWidth").setValue(params.bodyKnurlWidth, true);
+        document.getElementById("skirtSubdiv").setValue(params.skirtSubdiv, true);
+        document.getElementById("skirtDiameter").setValue(params.skirtDiameter, true);
+        document.getElementById("skirtBevel").setValue(params.skirtBevel, true);
+        document.getElementById("skirtHeight").setValue(params.skirtHeight, true);
+        document.getElementById("pointerLength").setValue(params.pointerLength, true);
+        document.getElementById("pointerWidth").setValue(params.pointerWidth, true);
+        document.getElementById("pointerHeight").setValue(params.pointerHeight, true);
+        document.getElementById("pointerBevel").setValue(params.pointerBevel, true);
+    }
+    tick() {
+        if(app.controls)
+            app.controls.update();
+        if(app.renderer)
+            app.renderer.render(app.scene, app.camera);
+    //  requestAnimationFrame(tick);
+        setTimeout(app.tick.bind(app),50);
+    }
+    save() {
+        console.log('app.save');
+        const data = JSON.stringify(paramfile, null, 2);
+        const link = document.createElement('a');
+        const blob = new Blob([data], {type:'text/plain'});
+        link.href=URL.createObjectURL(blob);
+        link.download = "stlknob.json";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+    load() {
+        console.log('app.load');
+        const link = document.createElement('input');
+        window.loadlink = link;
+        link.type = 'file';
+        link.click();
+        link.onchange=()=>{
+            const reader = new FileReader();
+            reader.onload = (event)=>{
+                const obj = JSON.parse(event.target.result);
+                console.log(obj)
+                if(obj.program != 'STLKnobDesigner'){
+                    alert('Data Error');
+                }
+                else {
+                    params = obj.params;
+                    app.updateParams();
+                }
+            }
+            reader.readAsText(link.files[0]);
+        }
+    }
+    export() {
+        console.log('app.export');
+        const data = this.stlExporter.parse(this.scene, false);
+        const link = document.createElement('a');
+        const blob = new Blob([data], {type:'text/plain'});
+        link.href=URL.createObjectURL(blob);
+        link.download = "knob.stl";
+        link.click();
+        URL.revokeObjectURL(link.href);
+
+    }
+}
+
+window.addEventListener("DOMContentLoaded", ()=>{
+    window.app = new App();
+    window.params = paramfile.params;
+    window.editParam = app.editParam.bind(app);
+    window.app.init();
+    window.app.updateParams();
+});
+
+</script>
+</body>
+</html>
