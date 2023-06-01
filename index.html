@@ -31,6 +31,15 @@ h1 {
     height:18px;
     width:60px;
 }
+.paramcolor {
+    width:60px;
+    height:20px;
+    text-align: center;
+    font-size:12px;
+    background:#000;
+    color:#fff;
+    border:none;
+}
 #header {
     display:flex;
     margin:20px;
@@ -103,11 +112,12 @@ h1 {
 <div style="height:630px;overflow-y:scroll">
     <div>
     <table>
-        <tr><td rowspan="1">SHAFT</td><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-10" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
+        <tr><td rowspan="1">SHAFT</td><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
         <tr><td rowspan="4">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
         <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
         <tr><td>Height(mm)</td><td><webaudio-slider id="topHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="topHeight"></webaudio-param></td></tr>
+<!--        <tr><td>Color</td><td><input type="color" id="topColor" oninput="editParam(this)"/></td><td><input id="topColorInput" class="paramcolor"/></td></tr>-->
         <tr><td rowspan="9">BODY</td><td>Subdivide</td><td><webaudio-slider id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-slider></td><td><webaudio-param link="bodySubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-slider></td><td><webaudio-param link="bodyTopDiameter"></webaudio-param></td></tr>
         <tr><td>TopBevel(mm)</td><td><webaudio-slider id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></webaudio-slider></td><td><webaudio-param link="bodyTopBevel"></webaudio-param></td></tr>
@@ -184,11 +194,12 @@ const paramfile = {
     version: "0.2.0",
     params: {
         shaftFineAdj:0,
-        topColor:"#ff0000",
+        topColor:"#ffffff",
         topSubdiv:36,
         topTopDiameter:80,
         topBottomDiameter:80,
         topHeight:1.0,
+        topColor:"#ffffff",
         bodySubdiv:72,
         bodyKnurlForm:1,
         bodyKnurlNum:12,
@@ -339,12 +350,14 @@ class Shaft {
         this.stlLoader.load('./Shaft/Shaft_Knurled.stl', (geoShaft)=> {
             this.mesh = new THREE.Mesh(geoShaft, app.material);
             app.scene.add(this.mesh);
+            this.update();
         });
     }
     update() {
         const p = paramfile.params;
-        if(this.mesh)
+        if(this.mesh){
             this.mesh.scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
+        }
     }
 }
 class Top {
@@ -361,12 +374,14 @@ class Top {
         this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
     }
     update() {
+        const p = paramfile.params;
         if(this.mesh) {
             app.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
         }
         this.getGeo();
-        this.mesh = new THREE.Mesh(this.geo, app.material);
+        this.material = new THREE.MeshPhongMaterial({color: p.topColor, flatShading:true});
+        this.mesh = new THREE.Mesh(this.geo, this.material);
         app.scene.add(this.mesh);
     }
 }
@@ -380,8 +395,8 @@ class Lid {
     getGeo() {
         const p = paramfile.params;
         this.tube.clear();
-        this.tube.addCircle({r1:5.5, r2:0, z:10.0});
-        this.tube.addCircle({r1:5.5, r2:0, z:p.bodyHeight});
+        this.tube.addCircle({r1:5.8, r2:0, z:10.0});
+        this.tube.addCircle({r1:5.8, r2:0, z:p.bodyHeight});
         this.geo = this.tube.createGeo(this.subdiv, 0, 0);
     }
     update() {
@@ -404,9 +419,9 @@ class Body {
         const p = paramfile.params;
         const topDia = (p.bodyBottomDiameter * p.bodyTopDiameter*0.01)*0.5;
         this.tube.clear();
-        this.tube.addCircle({r1:p.bodyBottomDiameter*0.5, r2:5.5, z:0.0});
-        this.tube.addCircle({r1:topDia, r2:5.5, z:p.bodyHeight - p.bodyTopBevel});
-        this.tube.addCircle({r1:topDia - p.bodyTopBevel, r2:5.5, z:p.bodyHeight});
+        this.tube.addCircle({r1:p.bodyBottomDiameter*0.5, r2:5.8, z:0.0});
+        this.tube.addCircle({r1:topDia, r2:5.8, z:p.bodyHeight - p.bodyTopBevel});
+        this.tube.addCircle({r1:topDia - p.bodyTopBevel, r2:5.8, z:p.bodyHeight});
         this.geo = this.tube.createGeo(p.bodySubdiv, p.bodyKnurlNum, p.bodyKnurlDepth);
     }
     update() {
@@ -428,9 +443,9 @@ class Skirt {
     getGeo() {
         const p = paramfile.params;
         this.tube.clear();
-        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.5, z:-p.skirtHeight});
-        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.5, z:-p.skirtBevel});
-        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter - p.skirtBevel * 2)*0.5, r2:5.5, z:0.0});
+        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.8, z:-p.skirtHeight});
+        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.8, z:-p.skirtBevel});
+        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter - p.skirtBevel * 2)*0.5, r2:5.8, z:0.0});
         this.geo = this.tube.createGeo(p.skirtSubdiv, 0, 0);
     }
     update() {
@@ -461,8 +476,8 @@ class Pointer {
         const y1 = p.bodyBottomDiameter*p.bodyTopDiameter*0.01*0.5 + p.pointerLength;
         const y2 = y1 + (y1 - y0) * (z2 - z1) / (z1 - z0);
         const y3 = y1 + (y1 - y0) * (z3 - z1) / (z1 - z0) - b;
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.5, x2:p.pointerWidth*0.5, y2:y0, z:z0});
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.5, x2:p.pointerWidth*0.5, y2:y1, z:z1});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.8, x2:p.pointerWidth*0.5, y2:y0, z:z0});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.8, x2:p.pointerWidth*0.5, y2:y1, z:z1});
         this.rect.addRect({x1:-p.pointerWidth*0.5, y1:0, x2:p.pointerWidth*0.5, y2:y1, z:z1});
         this.rect.addRect({x1:-p.pointerWidth*0.5, y1:0, x2:p.pointerWidth*0.5, y2:y2, z:z2});
         this.rect.addRect({x1:-p.pointerWidth*0.5, y1:b, x2:p.pointerWidth*0.5, y2:y3, z:z3});
@@ -506,6 +521,11 @@ class App {
             break;
         case "topHeight":
             p.topHeight = event.value;
+            app.partsTop.update();
+            break;
+        case "topColor":
+            p.topColor = event.value;
+            document.getElementById("topColorInput").value = p.topColor;
             app.partsTop.update();
             break;
         case "bodySubdiv":
@@ -619,6 +639,7 @@ class App {
         this.scene.add(light3);
 
         this.material = new THREE.MeshPhongMaterial({color: 0xffffff, flatShading:true});
+        this.material2 = new THREE.MeshPhongMaterial({color: 0x808080, flatShading:true});
     
         this.stlExporter = new STLExporter();
 
@@ -657,6 +678,7 @@ class App {
         document.getElementById("topTopDiameter").setValue(p.topTopDiameter, true);
         document.getElementById("topBottomDiameter").setValue(p.topBottomDiameter, true);
         document.getElementById("topHeight").setValue(p.topHeight, true);
+        document.getElementById("topColor").value = document.getElementById("topColorInput").value = p.topColor;
         document.getElementById("bodySubdiv").setValue(p.bodySubdiv, true);
         document.getElementById("bodyTopDiameter").setValue(p.bodyTopDiameter, true);
         document.getElementById("bodyTopBevel").setValue(p.bodyTopBevel, true);
