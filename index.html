@@ -103,7 +103,7 @@ h1 {
 <div style="height:630px;overflow-y:scroll">
     <div>
     <table>
-        <tr><td rowspan="1">SHAFT</td><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
+        <tr><td rowspan="1">SHAFT</td><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-10" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
         <tr><td rowspan="4">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
         <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
@@ -208,7 +208,6 @@ const paramfile = {
         pointerBevel: 1.2,
     }
 }
-window.params = paramfile.params;
 
 class Rectangular {
     constructor() {
@@ -263,13 +262,14 @@ class Tube {
         this.layers = [];
     }
     wave(th) {
-        switch(params.bodyKnurlForm) {
+        const p = paramfile.params;
+        switch(p.bodyKnurlForm) {
         case 0:
             return 0;
         case 1:
-            return Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -params.bodyKnurlWidth));
+            return Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -p.bodyKnurlWidth));
         case 2:
-            const t = Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -params.bodyKnurlWidth));
+            const t = Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -p.bodyKnurlWidth));
             if(t>=0.5) return 1;
             return -1;
         }
@@ -342,8 +342,9 @@ class Shaft {
         });
     }
     update() {
+        const p = paramfile.params;
         if(this.mesh)
-            this.mesh.scale.set(1.0 + params.shaftFineAdj*0.01, 1.0 + params.shaftFineAdj*0.01, 1.0);
+            this.mesh.scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
     }
 }
 class Top {
@@ -353,10 +354,11 @@ class Top {
         this.mesh = null;
     }
     getGeo() {
+        const p = paramfile.params;
         this.tube.clear();
-        this.tube.addCircle({r1:(params.bodyBottomDiameter * params.bodyTopDiameter*0.01 * params.topBottomDiameter*0.01)*0.5, r2:0, z:params.bodyHeight});
-        this.tube.addCircle({r1:(params.bodyBottomDiameter * params.bodyTopDiameter*0.01 * params.topBottomDiameter*0.01) * params.topTopDiameter*0.01 *0.5, r2:0, z:params.bodyHeight+params.topHeight});
-        this.geo = this.tube.createGeo(params.topSubdiv, 0, 0);
+        this.tube.addCircle({r1:(p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter*0.01)*0.5, r2:0, z:p.bodyHeight});
+        this.tube.addCircle({r1:(p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter*0.01) * p.topTopDiameter*0.01 *0.5, r2:0, z:p.bodyHeight+p.topHeight});
+        this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
     }
     update() {
         if(this.mesh) {
@@ -376,9 +378,10 @@ class Lid {
         this.subdiv = 36;
     }
     getGeo() {
+        const p = paramfile.params;
         this.tube.clear();
         this.tube.addCircle({r1:5.5, r2:0, z:10.0});
-        this.tube.addCircle({r1:5.5, r2:0, z:params.bodyHeight});
+        this.tube.addCircle({r1:5.5, r2:0, z:p.bodyHeight});
         this.geo = this.tube.createGeo(this.subdiv, 0, 0);
     }
     update() {
@@ -398,12 +401,13 @@ class Body {
         this.mesh = null;
     }
     getGeo() {
-        const topDia = (params.bodyBottomDiameter * params.bodyTopDiameter*0.01)*0.5;
+        const p = paramfile.params;
+        const topDia = (p.bodyBottomDiameter * p.bodyTopDiameter*0.01)*0.5;
         this.tube.clear();
-        this.tube.addCircle({r1:params.bodyBottomDiameter*0.5, r2:5.5, z:0.0});
-        this.tube.addCircle({r1:topDia, r2:5.5, z:params.bodyHeight - params.bodyTopBevel});
-        this.tube.addCircle({r1:topDia - params.bodyTopBevel, r2:5.5, z:params.bodyHeight});
-        this.geo = this.tube.createGeo(params.bodySubdiv, params.bodyKnurlNum, params.bodyKnurlDepth);
+        this.tube.addCircle({r1:p.bodyBottomDiameter*0.5, r2:5.5, z:0.0});
+        this.tube.addCircle({r1:topDia, r2:5.5, z:p.bodyHeight - p.bodyTopBevel});
+        this.tube.addCircle({r1:topDia - p.bodyTopBevel, r2:5.5, z:p.bodyHeight});
+        this.geo = this.tube.createGeo(p.bodySubdiv, p.bodyKnurlNum, p.bodyKnurlDepth);
     }
     update() {
         if(this.mesh) {
@@ -422,11 +426,12 @@ class Skirt {
         this.mesh = null;
     }
     getGeo() {
+        const p = paramfile.params;
         this.tube.clear();
-        this.tube.addCircle({r1:(params.bodyBottomDiameter + params.skirtDiameter)*0.5, r2:5.5, z:-params.skirtHeight});
-        this.tube.addCircle({r1:(params.bodyBottomDiameter + params.skirtDiameter)*0.5, r2:5.5, z:-params.skirtBevel});
-        this.tube.addCircle({r1:(params.bodyBottomDiameter + params.skirtDiameter - params.skirtBevel * 2)*0.5, r2:5.5, z:0.0});
-        this.geo = this.tube.createGeo(params.skirtSubdiv, 0, 0);
+        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.5, z:-p.skirtHeight});
+        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.5, z:-p.skirtBevel});
+        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter - p.skirtBevel * 2)*0.5, r2:5.5, z:0.0});
+        this.geo = this.tube.createGeo(p.skirtSubdiv, 0, 0);
     }
     update() {
         if(this.mesh) {
@@ -445,21 +450,22 @@ class Pointer {
         this.geo = new THREE.BufferGeometry();
     }
     getGeo() {
+        const p = paramfile.params;
         this.rect.clear();
-        const b = Math.min(params.pointerHeight, params.pointerBevel);
+        const b = Math.min(p.pointerHeight, p.pointerBevel);
         const z0 = 0;
-        const z1 = params.bodyHeight;
-        const z2 = params.bodyHeight + Math.max(0, params.pointerHeight - b);
-        const z3 = params.bodyHeight + params.pointerHeight;
-        const y0 = params.bodyBottomDiameter*0.5 + params.pointerLength;
-        const y1 = params.bodyBottomDiameter*params.bodyTopDiameter*0.01*0.5 + params.pointerLength;
+        const z1 = p.bodyHeight;
+        const z2 = p.bodyHeight + Math.max(0, p.pointerHeight - b);
+        const z3 = p.bodyHeight + p.pointerHeight;
+        const y0 = p.bodyBottomDiameter*0.5 + p.pointerLength;
+        const y1 = p.bodyBottomDiameter*p.bodyTopDiameter*0.01*0.5 + p.pointerLength;
         const y2 = y1 + (y1 - y0) * (z2 - z1) / (z1 - z0);
         const y3 = y1 + (y1 - y0) * (z3 - z1) / (z1 - z0) - b;
-        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:5.5, x2:params.pointerWidth*0.5, y2:y0, z:z0});
-        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:5.5, x2:params.pointerWidth*0.5, y2:y1, z:z1});
-        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:0, x2:params.pointerWidth*0.5, y2:y1, z:z1});
-        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:0, x2:params.pointerWidth*0.5, y2:y2, z:z2});
-        this.rect.addRect({x1:-params.pointerWidth*0.5, y1:b, x2:params.pointerWidth*0.5, y2:y3, z:z3});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.5, x2:p.pointerWidth*0.5, y2:y0, z:z0});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.5, x2:p.pointerWidth*0.5, y2:y1, z:z1});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:0, x2:p.pointerWidth*0.5, y2:y1, z:z1});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:0, x2:p.pointerWidth*0.5, y2:y2, z:z2});
+        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:b, x2:p.pointerWidth*0.5, y2:y3, z:z3});
         this.geo = this.rect.createGeo();
     }
     update() {
@@ -480,66 +486,67 @@ class App {
     }
     editParam(event) {
 //        console.log("editParam",event.id, event.value);
+        const p = paramfile.params;
         switch(event.id) {
         case "shaftFineAdj":
-            params.shaftFineAdj = event.value;
+            p.shaftFineAdj = event.value;
             app.partsShaft.update();
             break;
         case "topSubdiv":
-            params.topSubdiv = event.value;
+            p.topSubdiv = event.value;
             app.partsTop.update();
             break;
         case "topTopDiameter":
-            params.topTopDiameter = event.value;
+            p.topTopDiameter = event.value;
             app.partsTop.update();
             break;
         case "topBottomDiameter":
-            params.topBottomDiameter = event.value;
+            p.topBottomDiameter = event.value;
             app.partsTop.update();
             break;
         case "topHeight":
-            params.topHeight = event.value;
+            p.topHeight = event.value;
             app.partsTop.update();
             break;
         case "bodySubdiv":
-            params.bodySubdiv = event.value;
+            p.bodySubdiv = event.value;
             app.partsBody.update();
             break;
         case "bodyTopDiameter":
-            params.bodyTopDiameter = event.value;
+            p.bodyTopDiameter = event.value;
             app.partsBody.update();
             app.partsTop.update();
             app.partsPointer.update();
             break;
         case "bodyTopBevel":
-            params.bodyTopBevel = event.value;
+            p.bodyTopBevel = event.value;
             app.partsBody.update();
             break;
         case "bodyKnurlForm":
-            params.bodyKnurlForm = event.value;
+            p.bodyKnurlForm = event.value;
             app.partsBody.update();
             break;
         case "bodyKnurlNum":
-            params.bodyKnurlNum = event.value;
+            p.bodyKnurlNum = event.value;
             app.partsBody.update();
             break;
         case "bodyKnurlDepth":
-            params.bodyKnurlDepth = event.value;
+            p.bodyKnurlDepth = event.value;
             app.partsBody.update();
             break;
         case "bodyKnurlWidth":
-            params.bodyKnurlWidth = event.value;
+            p.bodyKnurlWidth = event.value;
             app.partsBody.update();
             break;
         case "bodyBottomDiameter":
-            params.bodyBottomDiameter = event.value;
+            p.bodyBottomDiameter = event.value;
             app.partsTop.update();
             app.partsBody.update();
             app.partsSkirt.update();
             app.partsPointer.update();
             break;
         case "bodyHeight":
-            params.bodyHeight = event.value;
+            p.bodyHeight = event.value;
             app.partsTop.update();
             app.partsBody.update();
             app.partsLid.update();
@@ -547,35 +554,35 @@ class App {
             app.partsPointer.update();
             break;
         case "skirtSubdiv":
-            params.skirtSubdiv = event.value;
+            p.skirtSubdiv = event.value;
             app.partsSkirt.update();
             break;
         case "skirtHeight":
-            params.skirtHeight = event.value;
+            p.skirtHeight = event.value;
             app.partsSkirt.update();
             break;
         case "skirtBevel":
-            params.skirtBevel = event.value;
+            p.skirtBevel = event.value;
             app.partsSkirt.update();
             break;
         case "skirtDiameter":
-            params.skirtDiameter = event.value;
+            p.skirtDiameter = event.value;
             app.partsSkirt.update();
             break;
         case "pointerLength":
-            params.pointerLength = event.value;
+            p.pointerLength = event.value;
             app.partsPointer.update();
             break;
         case "pointerWidth":
-            params.pointerWidth = event.value;
+            p.pointerWidth = event.value;
             app.partsPointer.update();
             break;
         case "pointerHeight":
-            params.pointerHeight = event.value;
+            p.pointerHeight = event.value;
             app.partsPointer.update();
             break;
         case "pointerBevel":
-            params.pointerBevel = event.value;
+            p.pointerBevel = event.value;
             app.partsPointer.update();
             break;
         }
@@ -638,34 +645,35 @@ class App {
         document.getElementById('version').innerText = paramfile.version;
         const def = JSON.parse(localStorage.getItem('defaultParam'));
         if(def && def.program == 'STLKnobDesigner' && def.version <= paramfile.version) {
-            console.log(JSON.parse(localStorage.getItem('defaultParam')))
-            params = def.params;
+            console.log(JSON.parse(localStorage.getItem('defaultParam')));
+            paramfile.params = def.params;
         }
         this.tick();
     }
     updateParams() {
-        document.getElementById("shaftFineAdj").setValue(params.shaftFineAdj, true);
-        document.getElementById("topSubdiv").setValue(params.topSubdiv, true);
-        document.getElementById("topTopDiameter").setValue(params.topTopDiameter, true);
-        document.getElementById("topBottomDiameter").setValue(params.topBottomDiameter, true);
-        document.getElementById("topHeight").setValue(params.topHeight, true);
-        document.getElementById("bodySubdiv").setValue(params.bodySubdiv, true);
-        document.getElementById("bodyTopDiameter").setValue(params.bodyTopDiameter, true);
-        document.getElementById("bodyTopBevel").setValue(params.bodyTopBevel, true);
-        document.getElementById("bodyBottomDiameter").setValue(params.bodyBottomDiameter, true);
-        document.getElementById("bodyHeight").setValue(params.bodyHeight, true);
-        document.getElementById("bodyKnurlForm").setValue(params.bodyKnurlForm, true);
-        document.getElementById("bodyKnurlNum").setValue(params.bodyKnurlNum, true);
-        document.getElementById("bodyKnurlDepth").setValue(params.bodyKnurlDepth, true);
-        document.getElementById("bodyKnurlWidth").setValue(params.bodyKnurlWidth, true);
-        document.getElementById("skirtSubdiv").setValue(params.skirtSubdiv, true);
-        document.getElementById("skirtDiameter").setValue(params.skirtDiameter, true);
-        document.getElementById("skirtBevel").setValue(params.skirtBevel, true);
-        document.getElementById("skirtHeight").setValue(params.skirtHeight, true);
-        document.getElementById("pointerLength").setValue(params.pointerLength, true);
-        document.getElementById("pointerWidth").setValue(params.pointerWidth, true);
-        document.getElementById("pointerHeight").setValue(params.pointerHeight, true);
-        document.getElementById("pointerBevel").setValue(params.pointerBevel, true);
+        const p = paramfile.params;
+        document.getElementById("shaftFineAdj").setValue(p.shaftFineAdj, true);
+        document.getElementById("topSubdiv").setValue(p.topSubdiv, true);
+        document.getElementById("topTopDiameter").setValue(p.topTopDiameter, true);
+        document.getElementById("topBottomDiameter").setValue(p.topBottomDiameter, true);
+        document.getElementById("topHeight").setValue(p.topHeight, true);
+        document.getElementById("bodySubdiv").setValue(p.bodySubdiv, true);
+        document.getElementById("bodyTopDiameter").setValue(p.bodyTopDiameter, true);
+        document.getElementById("bodyTopBevel").setValue(p.bodyTopBevel, true);
+        document.getElementById("bodyBottomDiameter").setValue(p.bodyBottomDiameter, true);
+        document.getElementById("bodyHeight").setValue(p.bodyHeight, true);
+        document.getElementById("bodyKnurlForm").setValue(p.bodyKnurlForm, true);
+        document.getElementById("bodyKnurlNum").setValue(p.bodyKnurlNum, true);
+        document.getElementById("bodyKnurlDepth").setValue(p.bodyKnurlDepth, true);
+        document.getElementById("bodyKnurlWidth").setValue(p.bodyKnurlWidth, true);
+        document.getElementById("skirtSubdiv").setValue(p.skirtSubdiv, true);
+        document.getElementById("skirtDiameter").setValue(p.skirtDiameter, true);
+        document.getElementById("skirtBevel").setValue(p.skirtBevel, true);
+        document.getElementById("skirtHeight").setValue(p.skirtHeight, true);
+        document.getElementById("pointerLength").setValue(p.pointerLength, true);
+        document.getElementById("pointerWidth").setValue(p.pointerWidth, true);
+        document.getElementById("pointerHeight").setValue(p.pointerHeight, true);
+        document.getElementById("pointerBevel").setValue(p.pointerBevel, true);
     }
     tick() {
         if(app.controls)
@@ -714,7 +722,7 @@ class App {
                     alert('Data Error');
                 }
                 else {
-                    params = obj.params;
+                    paramfile.params = obj.params;
                     app.updateParams();
                 }
             }
@@ -722,13 +730,15 @@ class App {
         }
     }
     saveDefault() {
+        console.log(paramfile);
         if(confirm('Remember current settings as default?\n現在の設定をデフォルト値として記憶しますか?')) {
+            console.log("app.saveDefault()");
             localStorage.setItem('defaultParam', JSON.stringify(paramfile));
             alert("Current settings are remembered as default.\n現在の設定がデフォルト値として記憶されました。");
         }
     }
     export() {
-        console.log('app.export');
+        console.log('app.export()');
         const data = this.stlExporter.parse(this.scene, false);
         const link = document.createElement('a');
         const blob = new Blob([data], {type:'text/plain'});
@@ -742,7 +752,7 @@ class App {
 
 window.addEventListener("DOMContentLoaded", ()=>{
     window.app = new App();
-    window.params = paramfile.params;
+    window.paramfile = paramfile;
     window.editParam = app.editParam.bind(app);
     window.app.init();
     window.app.updateParams();
