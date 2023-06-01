@@ -5,10 +5,13 @@
 <style>
 html {
     font-size:14px;
+    margin:0;
 }
 body {
     background:#1f243a;
     color:#e0e0e0;
+    margin:0;
+    padding:2px 15px;
 }
 td {
     font-size: 13.5px;
@@ -20,23 +23,79 @@ canvas {
     width:480px;
     height:480px;
 }
+h1 {
+    margin:auto 20px;
+}
 .param {
     vertical-align: middle;
     height:18px;
     width:60px;
 }
+#header {
+    display:flex;
+    margin:0;
+    background:#445;
+    color:#ccf;
+    margin:0px 5px;
+}
+#header a {
+    color:#ccf;
+    float:right;
+}
 #main {
+    position:relative;
     margin:10px auto;
     width:1030px;
     border:1px solid #666;
+    padding:1px 10px;
+}
+#knobrot {
+    position:absolute;
+    left:5px;
+    bottom:5px;
+    width:200px;
+}
+#aboutpane {
+    display:none;
+    position:absolute;
+    left:50%;
+    top:0;
+    background:rgba(0,0,0,0.5);
+    width:100%;
+    height:100%;
+    transform: translate(-50%, 0);
+}
+#about {
+    position:relative;
+    background:#ccf;
+    width:80%;
+    height:80%;
+    margin:auto;
+    top:20px;
+    color:#1f243a;
+    padding:20px;
+}
+#aboutclose {
+    position:absolute;
+    right:20px;
+    bottom:20px 80px;
 }
 </style>
 <body>
-<h1>STL Knob Designer</h1>
+<div id="header">
+    <img src="images/g200kg160x80.png"/>
+    <div>
+    <h1>STL Knob Designer</h1>
+    <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a>
+    </div>
+</div>
 <div id="main">
-    <button onclick="app.export()">Export as STL</button> <button onclick="app.save()">Save Param (JSON)</button> <button onclick="app.load()">Load Param (JSON)</button>
+    <button onclick="app.export()">Export as STL</button> <button onclick="app.save()">Save Param (JSON)</button> <button onclick="app.load()">Load Param (JSON)</button> <button onclick="app.about()">About</button>
 <div style="display:flex">
-<canvas id="canvas" ></canvas>
+<div style="position:relative">
+    <canvas id="canvas" ></canvas>
+    <webaudio-slider id="knobrot" defvalue="0" min="-145" max="145" oninput="app.rotate(this)"></webaudio-slider>
+</div>
 <div style="height:630px;overflow-y:scroll">
     <div>
     <table>
@@ -65,6 +124,25 @@ canvas {
     </div>
     </div>
 </div>
+<div id="aboutpane">
+<div id="about">
+<div>
+<h2>STL Knob Designer</h2>
+<p>This is a program that generates STL files of potentiometer-knobs for 3D printers.
+    The potentiometer sould be a 15mm long , 6mm diameter knurled shaft. </p>
+<p>This program assuming use with an FDM machine, and a slightly elastic filament such as PETG rather than PLA. 
+    Also, depending on the printer model, settings and filament type, it may be necessary to fine-tune the fit with the shaft. </p>
+<hr/>
+<p>これは 3D プリンタで造形可能なポテンショメーター用ツマミの STL ファイルを生成するプログラムです。
+    15mm 長、 6mm 径のローレット軸のシャフトを持つポテンショメータをターゲットとしています。</p>
+<p>データはFDM機での使用を想定しており、フィラメントはPLAよりもPETG等の多少の弾力性のある材料を推奨します。
+    またプリンタの機種やフィラメントの種類によってプリンタの印刷設定等で、軸との篏合を微調整する必要があるかもしれません。</p>
+<hr/>
+g200kg
+</div>
+<button id="aboutclose" onclick="document.getElementById('aboutpane').style.display='none'">Close</button>
+</div>
+</div>
 </div>
 <script type="importmap">
     {
@@ -77,7 +155,7 @@ canvas {
 </script>
 <script>
     WebAudioControlsOptions={
-        sliderWidth:140,
+        sliderWidth:180,
         paramWidth:60
     }
 </script>
@@ -424,6 +502,7 @@ class App {
             break;
         case "bodyBottomDiameter":
             params.bodyBottomDiameter = event.value;
+            app.partsTop.update();
             app.partsBody.update();
             app.partsSkirt.update();
             app.partsPointer.update();
@@ -558,6 +637,17 @@ class App {
             app.renderer.render(app.scene, app.camera);
     //  requestAnimationFrame(tick);
         setTimeout(app.tick.bind(app),50);
+    }
+    about() {
+        document.getElementById("aboutpane").style.display='block';
+    }
+    rotate(event) {
+        const r = -event.value * Math.PI / 180;
+        this.partsTop.mesh.rotation.set(0,0,r);
+        this.partsBody.mesh.rotation.set(0,0,r);
+        this.partsSkirt.mesh.rotation.set(0,0,r);
+        this.partsPointer.mesh.rotation.set(0,0,r);
+        this.meshShaft.rotation.set(0,0,r);
     }
     save() {
         console.log('app.save');
