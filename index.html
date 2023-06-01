@@ -33,14 +33,13 @@ h1 {
 }
 #header {
     display:flex;
-    margin:0;
+    margin:20px;
     background:#445;
     color:#ccf;
     margin:0px 5px;
 }
 #header a {
     color:#ccf;
-    float:right;
 }
 #main {
     position:relative;
@@ -86,11 +85,16 @@ h1 {
     <img src="images/g200kg160x80.png"/>
     <div>
     <h1>STL Knob Designer</h1>
-    <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a>
+    <p style="margin:0px 50px">v<span id="version"></span> g200kg</p>
+    <p style="margin:0px 50px">Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a></p>
     </div>
 </div>
 <div id="main">
-    <button onclick="app.export()">Export as STL</button> <button onclick="app.save()">Save Param (JSON)</button> <button onclick="app.load()">Load Param (JSON)</button> <button onclick="app.about()">About</button>
+    <button onclick="app.export()">Export as STL</button>
+    <button onclick="app.save()">Save Param (JSON)</button>
+    <button onclick="app.load()">Load Param (JSON)</button>
+    <button onclick="app.saveDefault()">Save Default</button>
+    <button onclick="app.about()">About</button>
 <div style="display:flex">
 <div style="position:relative">
     <canvas id="canvas" ></canvas>
@@ -99,6 +103,7 @@ h1 {
 <div style="height:630px;overflow-y:scroll">
     <div>
     <table>
+        <tr><td rowspan="1">SHAFT</td><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
         <tr><td rowspan="4">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
         <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
@@ -128,15 +133,21 @@ h1 {
 <div id="about">
 <div>
 <h2>STL Knob Designer</h2>
-<p>This is a program that generates STL files of potentiometer-knobs for 3D printers.
-    The potentiometer sould be a 15mm long , 6mm diameter knurled shaft. </p>
-<p>This program assuming use with an FDM machine, and a slightly elastic filament such as PETG rather than PLA. 
-    Also, depending on the printer model, settings and filament type, it may be necessary to fine-tune the fit with the shaft. </p>
-<hr/>
-<p>これは 3D プリンタで造形可能なポテンショメーター用ツマミの STL ファイルを生成するプログラムです。
-    15mm 長、 6mm 径のローレット軸のシャフトを持つポテンショメータをターゲットとしています。</p>
-<p>データはFDM機での使用を想定しており、フィラメントはPLAよりもPETG等の多少の弾力性のある材料を推奨します。
-    またプリンタの機種やフィラメントの種類によってプリンタの印刷設定等で、軸との篏合を微調整する必要があるかもしれません。</p>
+<p>This is a program that generates STL files of potentiometer-knobs for 3D printers. The potentiometer should be a 6mm diameter 15mm long, knurled shaft .</p>
+
+<p>If your printer can output '3DBenchy' model fine without supports, you don't need to add supports.</p>
+
+<p>This program assuming use with an FDM machine, and a slightly elastic filament such as PETG rather than PLA. Also, depending on the printer model, settings and filament type, it may be necessary to fine-tune the fit with the shaft.</p>
+
+----
+
+<p>これは 3D プリンタで造形可能なツマミの STL ファイルを生成するプログラムです。6mm 径の 15mm 長、ローレット軸のシャフトを持つポテンショメータ用のツマミのデータを生成します。  </p>
+
+<p>FDM 機での使用を想定しており、フィラメントは PLA よりも PETG 等の多少の弾力性のある材料を推奨します。</p>
+
+<p>サポート無しで '3DBenchy' くらいがちゃんと造形できているのであれば、サポートの追加は必要ありません。
+またプリンタの機種やフィラメントの種類によってプリンタの印刷設定等で、軸との篏合を微調整する必要があるかもしれません。</p>
+
 <hr/>
 g200kg
 </div>
@@ -170,8 +181,10 @@ import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 
 const paramfile = {
     program: "STLKnobDesigner",
-    version: "0.1.0",
+    version: "0.2.0",
     params: {
+        shaftFineAdj:0,
+        topColor:"#ff0000",
         topSubdiv:36,
         topTopDiameter:80,
         topBottomDiameter:80,
@@ -201,6 +214,7 @@ class Rectangular {
     constructor() {
         this.geo = new THREE.BufferGeometry();
         this.layers = [];
+        this.topBevel = 0.5;
     }
     clear() {
         this.layers = [];
@@ -317,6 +331,19 @@ class Tube {
         this.geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vtx), 3));
         this.geo.computeVertexNormals();
         return this.geo;
+    }
+}
+class Shaft {
+    constructor() {
+        this.stlLoader = new STLLoader();
+        this.stlLoader.load('./Shaft/Shaft_Knurled.stl', (geoShaft)=> {
+            this.mesh = new THREE.Mesh(geoShaft, app.material);
+            app.scene.add(this.mesh);
+        });
+    }
+    update() {
+        if(this.mesh)
+            this.mesh.scale.set(1.0 + params.shaftFineAdj*0.01, 1.0 + params.shaftFineAdj*0.01, 1.0);
     }
 }
 class Top {
@@ -454,6 +481,10 @@ class App {
     editParam(event) {
 //        console.log("editParam",event.id, event.value);
         switch(event.id) {
+        case "shaftFineAdj":
+            params.shaftFineAdj = event.value;
+            app.partsShaft.update();
+            break;
         case "topSubdiv":
             params.topSubdiv = event.value;
             app.partsTop.update();
@@ -548,6 +579,7 @@ class App {
             app.partsPointer.update();
             break;
         }
+        this.rotate();
     }
     init() {
         console.log("init");
@@ -568,6 +600,7 @@ class App {
         );
         this.camera.position.set(50, 30, 80);
         this.camera.lookAt(0, 0, 0);
+        this.rot = 0;
 
         const light1 = new THREE.AmbientLight(0xffffff, 0.1);
         this.scene.add(light1);
@@ -580,13 +613,10 @@ class App {
 
         this.material = new THREE.MeshPhongMaterial({color: 0xffffff, flatShading:true});
     
-        this.stlLoader = new STLLoader();
-        this.stlLoader.load('./Shaft/Shaft_Knurled.stl', (geoShaft)=> {
-            this.meshShaft = new THREE.Mesh(geoShaft, this.material);
-            this.scene.add(this.meshShaft);
-        })
         this.stlExporter = new STLExporter();
 
+        this.partsShaft = new Shaft();
+        this.partsShaft.update();
         this.partsTop = new Top();
         this.partsTop.update();
         this.partsLid = new Lid();
@@ -605,9 +635,16 @@ class App {
 //        const axesHelper = new THREE.AxesHelper(35);
 //        axesHelper.position.set(0,0,0);
 //        this.scene.add(axesHelper);
+        document.getElementById('version').innerText = paramfile.version;
+        const def = JSON.parse(localStorage.getItem('defaultParam'));
+        if(def && def.program == 'STLKnobDesigner' && def.version <= paramfile.version) {
+            console.log(JSON.parse(localStorage.getItem('defaultParam')))
+            params = def.params;
+        }
         this.tick();
     }
     updateParams() {
+        document.getElementById("shaftFineAdj").setValue(params.shaftFineAdj, true);
         document.getElementById("topSubdiv").setValue(params.topSubdiv, true);
         document.getElementById("topTopDiameter").setValue(params.topTopDiameter, true);
         document.getElementById("topBottomDiameter").setValue(params.topBottomDiameter, true);
@@ -642,12 +679,15 @@ class App {
         document.getElementById("aboutpane").style.display='block';
     }
     rotate(event) {
-        const r = -event.value * Math.PI / 180;
+        if(event)
+            this.rot = event.value;
+        const r = -this.rot * Math.PI / 180;
         this.partsTop.mesh.rotation.set(0,0,r);
         this.partsBody.mesh.rotation.set(0,0,r);
         this.partsSkirt.mesh.rotation.set(0,0,r);
         this.partsPointer.mesh.rotation.set(0,0,r);
-        this.meshShaft.rotation.set(0,0,r);
+        if(this.partsShaft.mesh)
+            this.partsShaft.mesh.rotation.set(0,0,r);
     }
     save() {
         console.log('app.save');
@@ -679,6 +719,12 @@ class App {
                 }
             }
             reader.readAsText(link.files[0]);
+        }
+    }
+    saveDefault() {
+        if(confirm('Remember current settings as default?\n現在の設定をデフォルト値として記憶しますか?')) {
+            localStorage.setItem('defaultParam', JSON.stringify(paramfile));
+            alert("Current settings are remembered as default.\n現在の設定がデフォルト値として記憶されました。");
         }
     }
     export() {
