@@ -16,5 +16,6 @@ FDM 機での使用を想定しており、フィラメントは PLA よりも P
 # Live Demo Page
 https://g200kg.github.io/stl-knob-designer/
 
+![/images/20230601_stlknob1.png](images/20230601_stlknob1.png)
 
 
