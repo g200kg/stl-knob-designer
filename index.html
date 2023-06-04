@@ -53,7 +53,7 @@ h1 {
 #main {
     position:relative;
     margin:10px auto;
-    width:1030px;
+    width:1050px;
     border:1px solid #666;
     padding:1px 10px;
 }
@@ -82,6 +82,14 @@ h1 {
     top:20px;
     color:#1f243a;
     padding:20px;
+    overflow-y: scroll;
+}
+#aboutcontent {
+    color:#1f243a;
+    background:#ccf;
+}
+#aboutcontent td {
+    color:#000;
 }
 #aboutclose {
     position:absolute;
@@ -112,26 +120,35 @@ h1 {
 <div style="height:630px;overflow-y:scroll">
     <div>
     <table>
-        <tr><td rowspan="1">SHAFT</td><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
-        <tr><td rowspan="4">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
+        <tr><td rowspan="3"><webaudio-switch id="shaftEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="3">SHAFT</td><td>Type</td><td colspan="2"><select id="shaftType" onchange="editParam(this)">
+        </select></td></tr>
+        <tr><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
+        <tr><td>Rotate(deg)</td><td><webaudio-slider id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-slider></td><td><webaudio-param link="shaftRotate"></webaudio-param></td></tr>
+
+        <tr><td rowspan="5"><webaudio-switch id="topEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
         <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
         <tr><td>Height(mm)</td><td><webaudio-slider id="topHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="topHeight"></webaudio-param></td></tr>
-<!--        <tr><td>Color</td><td><input type="color" id="topColor" oninput="editParam(this)"/></td><td><input id="topColorInput" class="paramcolor"/></td></tr>-->
-        <tr><td rowspan="9">BODY</td><td>Subdivide</td><td><webaudio-slider id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-slider></td><td><webaudio-param link="bodySubdiv"></webaudio-param></td></tr>
+        <tr><td>Color</td><td><input type="color" id="topColor" oninput="editParam(this)"/></td><td><input id="topColorInput" class="paramcolor" onchange="editParam(this)"/></td></tr>
+
+        <tr><td rowspan="10"><webaudio-switch id="bodyEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="10">BODY</td><td>Subdivide</td><td><webaudio-slider id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-slider></td><td><webaudio-param link="bodySubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-slider></td><td><webaudio-param link="bodyTopDiameter"></webaudio-param></td></tr>
         <tr><td>TopBevel(mm)</td><td><webaudio-slider id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></webaudio-slider></td><td><webaudio-param link="bodyTopBevel"></webaudio-param></td></tr>
         <tr><td>BottomDiameter(mm)</td><td><webaudio-slider id="bodyBottomDiameter" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyBottomDiameter"></webaudio-param></td></tr>
-        <tr><td>Height(mm)</td><td><webaudio-slider id="bodyHeight" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyHeight"></webaudio-param></td></tr>
+        <tr><td>Height(mm)</td><td><webaudio-slider id="bodyHeight" oninput="editParam(this)" min="11" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyHeight"></webaudio-param></td></tr>
         <tr><td>KnurlForm</td><td><webaudio-slider id="bodyKnurlForm" oninput="editParam(this)" min="0" max="2" step="1" tracking="abs" conv="['None','Sin','Sqr'][x]"></webaudio-slider></td><td><webaudio-param link="bodyKnurlForm"></webaudio-param></td></tr>
         <tr><td>KnurlNum</td><td><webaudio-slider id="bodyKnurlNum" oninput="editParam(this)" min="0" max="36" step="1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlNum"></webaudio-param></td></tr>
         <tr><td>KnurlDepth(mm)</td><td><webaudio-slider id="bodyKnurlDepth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlDepth"></webaudio-param></td></tr>
         <tr><td>KnurlWidth</td><td><webaudio-slider id="bodyKnurlWidth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlWidth"></webaudio-param></td></tr>
-        <tr><td rowspan="4">SKIRT</td><td>Subdivide</td><td><webaudio-slider id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="skirtSubdiv"></webaudio-param></td></tr>
+        <tr><td>Color</td><td><input type="color" id="bodyColor" oninput="editParam(this)"/></td><td><input id="bodyColorInput" class="paramcolor" onchange="editParam(this)"/></td></tr>
+
+        <tr><td rowspan="5"><webaudio-switch id="skirtEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5">SKIRT</td><td>Subdivide</td><td><webaudio-slider id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="skirtSubdiv"></webaudio-param></td></tr>
         <tr><td>Diameter(Body+mm)</td><td><webaudio-slider id="skirtDiameter" oninput="editParam(this)" min="0" max="10.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtDiameter"></webaudio-param></td></tr>
         <tr><td>Bevel(mm)</td><td><webaudio-slider id="skirtBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtBevel"></webaudio-param></td></tr>
         <tr><td>Height(mm)</td><td><webaudio-slider id="skirtHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtHeight"></webaudio-param></td></tr>
-        <tr><td rowspan="4">POINTER</td><td>Length(mm)</td><td><webaudio-slider id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerLength"></webaudio-param></td></tr>
+        <tr><td>Color</td><td><input type="color" id="skirtColor" oninput="editParam(this)"/></td><td><input id="skirtColorInput" class="paramcolor" onchange="editParam(this)"/></td></tr>
+
+        <tr><td rowspan="4"><webaudio-switch id="pointerEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="4">POINTER</td><td>Length(mm)</td><td><webaudio-slider id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerLength"></webaudio-param></td></tr>
         <tr><td>Width(mm)</td><td><webaudio-slider id="pointerWidth" oninput="editParam(this)" min="0.5" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerWidth"></webaudio-param></td></tr>
         <tr><td>Height(mm)</td><td><webaudio-slider id="pointerHeight" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerHeight"></webaudio-param></td></tr>
         <tr><td>Bevel(mm)</td><td><webaudio-slider id="pointerBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerBevel"></webaudio-param></td></tr>
@@ -142,12 +159,18 @@ h1 {
 <div id="aboutpane">
 <div id="about">
 <div>
+<div id="aboutcontent">
 <h2>STL Knob Designer</h2>
+
 <p>This is a program that generates STL files of potentiometer-knobs for 3D printers. The potentiometer should be a 6mm diameter 15mm long, knurled shaft .</p>
 
 <p>If your printer can output '3DBenchy' model fine without supports, you don't need to add supports.</p>
 
 <p>This program assuming use with an FDM machine, and a slightly elastic filament such as PETG rather than PLA. Also, depending on the printer model, settings and filament type, it may be necessary to fine-tune the fit with the shaft.</p>
+
+<p>The fitting to the shaft can be fine-tuned with [SHAFT]-[FineAdject].</p>
+
+<p>The color setting is not reflected in the STL file, you can pause at a specific layer in the slicer and manually swap filaments.</p>
 
 ----
 
@@ -158,8 +181,13 @@ h1 {
 <p>サポート無しで '3DBenchy' くらいがちゃんと造形できているのであれば、サポートの追加は必要ありません。
 またプリンタの機種やフィラメントの種類によってプリンタの印刷設定等で、軸との篏合を微調整する必要があるかもしれません。</p>
 
+<p>シャフトとの篏合の硬さは [SHAFT]-[FineAdjust] で微調整できます。</p>
+
+<p>色の設定は STL ファイルには反映されませんが、スライサーで TOP 部が始まるレイヤーを確認して、そこでプリンターを一時停止して、フィラメントを手動で入れ替えるなどの手段を取る事ができます。</p>
+
 <hr/>
 g200kg
+</div>
 </div>
 <button id="aboutclose" onclick="document.getElementById('aboutpane').style.display='none'">Close</button>
 </div>
@@ -176,6 +204,7 @@ g200kg
 </script>
 <script>
     WebAudioControlsOptions={
+        switchHeight:28,
         sliderWidth:180,
         paramWidth:60
     }
@@ -188,37 +217,50 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 
-
-const paramfile = {
+const shaftFiles = [
+    "Shaft_Knurled",
+    "Shaft_D",
+];
+const paramDefault = {
     program: "STLKnobDesigner",
     version: "0.2.0",
     params: {
-        shaftFineAdj:0,
-        topColor:"#ffffff",
-        topSubdiv:36,
-        topTopDiameter:80,
-        topBottomDiameter:80,
-        topHeight:1.0,
-        topColor:"#ffffff",
-        bodySubdiv:72,
-        bodyKnurlForm:1,
-        bodyKnurlNum:12,
-        bodyKnurlDepth:0.6,
-        bodyKnurlWidth:0,
+        shaftEnable: 1,
+        shaftType: shaftFiles[0],
+        shaftFineAdj: 0,
+        shaftRotate: 0,
+        topEnable: 1,
+        topSubdiv: 36,
+        topTopDiameter: 80,
+        topBottomDiameter: 80,
+        topHeight: 1.0,
+        topColor: "#ff0000",
+        bodyEnable: 1,
+        bodySubdiv: 72,
+        bodyKnurlForm: 1,
+        bodyKnurlNum: 12,
+        bodyKnurlDepth: 0.6,
+        bodyKnurlWidth: 0,
         bodyTopDiameter: 80,
-        bodyTopBevel:0.5,
+        bodyTopBevel: 0.5,
         bodyBottomDiameter: 15.0,
-        bodyHeight:15.0,
+        bodyHeight: 15.0,
+        bodyColor: "#ffffff",
+        skirtEnable: 1,
         skirtSubdiv: 36,
-        skirtDiameter: 4.0,
+        skirtDiameter: 5.0,
         skirtBevel: 0.5,
         skirtHeight: 2.0,
+        skirtColor: "#ffffff",
+        pointerEnable: 1,
         pointerLength: 2.0,
         pointerWidth: 1.5,
         pointerHeight: 2.0,
         pointerBevel: 1.2,
     }
-}
+};
+
+const paramCurrent = Object.assign({}, JSON.parse(JSON.stringify(paramDefault)));
 
 class Rectangular {
     constructor() {
@@ -273,7 +315,7 @@ class Tube {
         this.layers = [];
     }
     wave(th) {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         switch(p.bodyKnurlForm) {
         case 0:
             return 0;
@@ -347,16 +389,27 @@ class Tube {
 class Shaft {
     constructor() {
         this.stlLoader = new STLLoader();
-        this.stlLoader.load('./Shaft/Shaft_Knurled.stl', (geoShaft)=> {
-            this.mesh = new THREE.Mesh(geoShaft, app.material);
-            app.scene.add(this.mesh);
-            this.update();
-        });
+        this.meshes = [];
+        for(let i = 0; i < shaftFiles.length; ++i) {
+            this.stlLoader.load('Shaft/'+shaftFiles[i]+'.stl', (geoShaft)=> {
+                this.material = new THREE.MeshPhongMaterial({color: "#fff", flatShading:true});
+                this.meshes[shaftFiles[i]] = new THREE.Mesh(geoShaft, this.material);
+                this.meshes[shaftFiles[i]].visible = false;
+                app.scene.add(this.meshes[shaftFiles[i]]);
+                this.update();
+            });
+        }
     }
     update() {
-        const p = paramfile.params;
-        if(this.mesh){
-            this.mesh.scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
+        const p = paramCurrent.params;
+        for(let i = 0; i < shaftFiles.length; ++i) {
+            if(this.meshes[shaftFiles[i]])
+                this.meshes[shaftFiles[i]].visible = false;
+        }
+        if(this.meshes[p.shaftType]){
+            this.meshes[p.shaftType].scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
+            this.meshes[p.shaftType].visible = !!p.shaftEnable;
+            app.rotate();
         }
     }
 }
@@ -365,23 +418,26 @@ class Top {
         this.tube = new Tube();
         this.geo = null;
         this.mesh = null;
+        this.material = null;
     }
     getGeo() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         this.tube.clear();
         this.tube.addCircle({r1:(p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter*0.01)*0.5, r2:0, z:p.bodyHeight});
         this.tube.addCircle({r1:(p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter*0.01) * p.topTopDiameter*0.01 *0.5, r2:0, z:p.bodyHeight+p.topHeight});
         this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
     }
     update() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         if(this.mesh) {
             app.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
+            this.mesh.material.dispose();
         }
         this.getGeo();
         this.material = new THREE.MeshPhongMaterial({color: p.topColor, flatShading:true});
         this.mesh = new THREE.Mesh(this.geo, this.material);
+        this.mesh.visible = !!p.topEnable;
         app.scene.add(this.mesh);
     }
 }
@@ -390,22 +446,26 @@ class Lid {
         this.tube = new Tube();
         this.geo = null;
         this.mesh = null;
-        this.subdiv = 36;
+        this.material = null;
+        this.subdiv = paramCurrent.params.bodySubdiv;
     }
     getGeo() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         this.tube.clear();
         this.tube.addCircle({r1:5.8, r2:0, z:10.0});
         this.tube.addCircle({r1:5.8, r2:0, z:p.bodyHeight});
         this.geo = this.tube.createGeo(this.subdiv, 0, 0);
     }
     update() {
+        const p = paramCurrent.params;
         if(this.mesh) {
             app.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
+            this.mesh.material.dispose();
         }
         this.getGeo();
-        this.mesh = new THREE.Mesh(this.geo, app.material);
+        this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
+        this.mesh = new THREE.Mesh(this.geo, this.material);
         app.scene.add(this.mesh);
     }
 }
@@ -414,9 +474,10 @@ class Body {
         this.tube = new Tube();
         this.geo = null;
         this.mesh = null;
+        this.material = null;
     }
     getGeo() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         const topDia = (p.bodyBottomDiameter * p.bodyTopDiameter*0.01)*0.5;
         this.tube.clear();
         this.tube.addCircle({r1:p.bodyBottomDiameter*0.5, r2:5.8, z:0.0});
@@ -425,12 +486,16 @@ class Body {
         this.geo = this.tube.createGeo(p.bodySubdiv, p.bodyKnurlNum, p.bodyKnurlDepth);
     }
     update() {
+        const p = paramCurrent.params;
         if(this.mesh) {
             app.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
+            this.mesh.material.dispose();
         }
         this.getGeo();
-        this.mesh = new THREE.Mesh(this.geo, app.material);
+        this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
+        this.mesh = new THREE.Mesh(this.geo, this.material);
+        this.mesh.visible = !!p.bodyEnable;
         app.scene.add(this.mesh);
     }
 }
@@ -439,9 +504,10 @@ class Skirt {
         this.tube = new Tube();
         this.geo = null;
         this.mesh = null;
+        this.material = null;
     }
     getGeo() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         this.tube.clear();
         this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.8, z:-p.skirtHeight});
         this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.8, z:-p.skirtBevel});
@@ -449,12 +515,16 @@ class Skirt {
         this.geo = this.tube.createGeo(p.skirtSubdiv, 0, 0);
     }
     update() {
+        const p = paramCurrent.params;
         if(this.mesh) {
             app.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
+            this.mesh.material.dispose();
         }
         this.getGeo();
-        this.mesh = new THREE.Mesh(this.geo, app.material);
+        this.material = new THREE.MeshPhongMaterial({color: p.skirtColor, flatShading:true});
+        this.mesh = new THREE.Mesh(this.geo, this.material);
+        this.mesh.visible = !!p.skirtEnable;
         app.scene.add(this.mesh);
     }
 }
@@ -462,10 +532,11 @@ class Pointer {
     constructor() {
         this.rect = new Rectangular();
         this.mesh = null;
+        this.material = null;
         this.geo = new THREE.BufferGeometry();
     }
     getGeo() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         this.rect.clear();
         const b = Math.min(p.pointerHeight, p.pointerBevel);
         const z0 = 0;
@@ -484,12 +555,16 @@ class Pointer {
         this.geo = this.rect.createGeo();
     }
     update() {
+        const p = paramCurrent.params;
         if(this.mesh) {
             app.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
+            this.mesh.material.dispose();
         }
         this.getGeo();
-        this.mesh = new THREE.Mesh(this.geo, app.material);
+        this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
+        this.mesh = new THREE.Mesh(this.geo, this.material);
+        this.mesh.visible = !!p.pointerEnable;
         app.scene.add(this.mesh);
     }
 }
@@ -501,11 +576,28 @@ class App {
     }
     editParam(event) {
 //        console.log("editParam",event.id, event.value);
-        const p = paramfile.params;
+        const p = paramCurrent.params;
         switch(event.id) {
+        case "shaftEnable":
+            p.shaftEnable = event.value;
+            app.partsShaft.update();
+            break;
+        case "shaftType":
+            p.shaftType = event.value;
+            app.partsShaft.update();
+            break;
         case "shaftFineAdj":
             p.shaftFineAdj = event.value;
             app.partsShaft.update();
+            break;
+        case "shaftRotate":
+            p.shaftRotate = event.value;
+            app.partsShaft.update();
+            app.rotate();
+            break;
+        case "topEnable":
+            p.topEnable = event.value;
+            app.partsTop.update();
             break;
         case "topSubdiv":
             p.topSubdiv = event.value;
@@ -527,6 +619,15 @@ class App {
             p.topColor = event.value;
             document.getElementById("topColorInput").value = p.topColor;
             app.partsTop.update();
+            break;
+        case "topColorInput":
+            p.topColor = event.value;
+            document.getElementById("topColor").value = p.topColor;
+            app.partsTop.update();
+            break;
+        case "bodyEnable":
+            p.bodyEnable = event.value;
+            app.partsBody.update();
             break;
         case "bodySubdiv":
             p.bodySubdiv = event.value;
@@ -573,6 +674,26 @@ class App {
             app.partsSkirt.update();
             app.partsPointer.update();
             break;
+        case "bodyColor":
+            p.bodyColor = event.value;
+            document.getElementById("bodyColorInput").value = p.bodyColor;
+            app.partsBody.update();
+            app.partsPointer.update();
+            app.partsLid.update();
+            app.partsShaft.update();
+            break;
+        case "bodyColorInput":
+            p.bodyColor = event.value;
+            document.getElementById("bodyColor").value = p.bodyColor;
+            app.partsBody.update();
+            app.partsPointer.update();
+            app.partsLid.update();
+            app.partsShaft.update();
+            break;
+        case "skirtEnable":
+            p.skirtEnable = event.value;
+            app.partsSkirt.update();
+            break;
         case "skirtSubdiv":
             p.skirtSubdiv = event.value;
             app.partsSkirt.update();
@@ -585,9 +706,23 @@ class App {
             p.skirtBevel = event.value;
             app.partsSkirt.update();
             break;
-        case "skirtDiameter":
+        case "skirtDiameter": 
             p.skirtDiameter = event.value;
             app.partsSkirt.update();
+            break;
+        case "skirtColor":
+            p.skirtColor = event.value;
+            document.getElementById("skirtColorInput").value = p.skirtColor;
+            app.partsSkirt.update();
+            break;
+        case "skirtColorInput":
+            p.skirtColor = event.value;
+            document.getElementById("skirtColor").value = p.skirtColor;
+            app.partsSkirt.update();
+            break;
+        case "pointerEnable":
+            p.pointerEnable = event.value;
+            app.partsPointer.update();
             break;
         case "pointerLength":
             p.pointerLength = event.value;
@@ -610,7 +745,12 @@ class App {
     }
     init() {
         console.log("init");
-
+        const elmShaftType = document.getElementById("shaftType");
+        for(let i=0; i < shaftFiles.length; ++i) {
+            const op = document.createElement("option");
+            op.innerText = shaftFiles[i];
+            elmShaftType.append(op);
+        }
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.querySelector("#canvas"),
         });
@@ -663,17 +803,27 @@ class App {
 //        const axesHelper = new THREE.AxesHelper(35);
 //        axesHelper.position.set(0,0,0);
 //        this.scene.add(axesHelper);
-        document.getElementById('version').innerText = paramfile.version;
-        const def = JSON.parse(localStorage.getItem('defaultParam'));
-        if(def && def.program == 'STLKnobDesigner' && def.version <= paramfile.version) {
-            console.log(JSON.parse(localStorage.getItem('defaultParam')));
-            paramfile.params = def.params;
-        }
+        document.getElementById('version').innerText = paramCurrent.version;
+
+        const shaftdir = "./Shaft";
+
+
+        this.loadSettings();
         this.tick();
     }
+    loadSettings() {
+        const def = JSON.parse(localStorage.getItem('defaultParam'));
+        if(def && def.program == 'STLKnobDesigner' && def.version <= paramCurrent.version) {
+            console.log(JSON.parse(localStorage.getItem('defaultParam')));
+            paramCurrent.params = def.params;
+        }
+    }
     updateParams() {
-        const p = paramfile.params;
+        const p = paramCurrent.params;
+        document.getElementById("shaftEnable").setValue(p.shaftEnable, true);
+        document.getElementById("shaftType").value = p.shaftType;
         document.getElementById("shaftFineAdj").setValue(p.shaftFineAdj, true);
+        document.getElementById("shaftRotate").setValue(p.shaftRotate, true);
         document.getElementById("topSubdiv").setValue(p.topSubdiv, true);
         document.getElementById("topTopDiameter").setValue(p.topTopDiameter, true);
         document.getElementById("topBottomDiameter").setValue(p.topBottomDiameter, true);
@@ -688,10 +838,12 @@ class App {
         document.getElementById("bodyKnurlNum").setValue(p.bodyKnurlNum, true);
         document.getElementById("bodyKnurlDepth").setValue(p.bodyKnurlDepth, true);
         document.getElementById("bodyKnurlWidth").setValue(p.bodyKnurlWidth, true);
+        document.getElementById("bodyColor").value = document.getElementById("bodyColorInput").value = p.bodyColor;
         document.getElementById("skirtSubdiv").setValue(p.skirtSubdiv, true);
         document.getElementById("skirtDiameter").setValue(p.skirtDiameter, true);
         document.getElementById("skirtBevel").setValue(p.skirtBevel, true);
         document.getElementById("skirtHeight").setValue(p.skirtHeight, true);
+        document.getElementById("skirtColor").value = document.getElementById("skirtColorInput").value = p.skirtColor;
         document.getElementById("pointerLength").setValue(p.pointerLength, true);
         document.getElementById("pointerWidth").setValue(p.pointerWidth, true);
         document.getElementById("pointerHeight").setValue(p.pointerHeight, true);
@@ -716,12 +868,12 @@ class App {
         this.partsBody.mesh.rotation.set(0,0,r);
         this.partsSkirt.mesh.rotation.set(0,0,r);
         this.partsPointer.mesh.rotation.set(0,0,r);
-        if(this.partsShaft.mesh)
-            this.partsShaft.mesh.rotation.set(0,0,r);
+        if(this.partsShaft.meshes[paramCurrent.params.shaftType])
+            this.partsShaft.meshes[paramCurrent.params.shaftType].rotation.set(0,0,r + Math.PI * paramCurrent.params.shaftRotate / 180);
     }
     save() {
         console.log('app.save');
-        const data = JSON.stringify(paramfile, null, 2);
+        const data = JSON.stringify(paramCurrent, null, 2);
         const link = document.createElement('a');
         const blob = new Blob([data], {type:'text/plain'});
         link.href=URL.createObjectURL(blob);
@@ -744,7 +896,7 @@ class App {
                     alert('Data Error');
                 }
                 else {
-                    paramfile.params = obj.params;
+                    paramCurrent.params = obj.params;
                     app.updateParams();
                 }
             }
@@ -752,10 +904,10 @@ class App {
         }
     }
     saveDefault() {
-        console.log(paramfile);
+        console.log(paramCurrent);
         if(confirm('Remember current settings as default?\n現在の設定をデフォルト値として記憶しますか?')) {
             console.log("app.saveDefault()");
-            localStorage.setItem('defaultParam', JSON.stringify(paramfile));
+            localStorage.setItem('defaultParam', JSON.stringify(paramCurrent));
             alert("Current settings are remembered as default.\n現在の設定がデフォルト値として記憶されました。");
         }
     }
@@ -771,10 +923,22 @@ class App {
 
     }
 }
-
+window.clearSettings = () => {
+    localStorage.clear();
+    app.loadSettings();
+    app.updateParams();
+    app.partsShaft.update();
+    app.partsTop.update();
+    app.partsBody.update();
+    app.partsSkirt.update();
+    app.partsPointer.update();
+    app.partsLid.update();
+    console.log('clearSettings()');
+}
 window.addEventListener("DOMContentLoaded", ()=>{
     window.app = new App();
-    window.paramfile = paramfile;
+    window.paramDefault = paramDefault;
+    window.paramCurrent = paramCurrent;
     window.editParam = app.editParam.bind(app);
     window.app.init();
     window.app.updateParams();
