@@ -394,23 +394,37 @@ class Shaft {
             this.stlLoader.load('Shaft/'+shaftFiles[i]+'.stl', (geoShaft)=> {
                 this.material = new THREE.MeshPhongMaterial({color: "#fff", flatShading:true});
                 this.meshes[shaftFiles[i]] = new THREE.Mesh(geoShaft, this.material);
-                this.meshes[shaftFiles[i]].visible = false;
-                app.scene.add(this.meshes[shaftFiles[i]]);
+//                this.meshes[shaftFiles[i]].visible = false;
+//                app.scene.add(this.meshes[shaftFiles[i]]);
                 this.update();
             });
         }
     }
     update() {
         const p = paramCurrent.params;
-        for(let i = 0; i < shaftFiles.length; ++i) {
+/*        for(let i = 0; i < shaftFiles.length; ++i) {
             if(this.meshes[shaftFiles[i]])
                 this.meshes[shaftFiles[i]].visible = false;
         }
+*/
+console.log(p.shaftType, this.meshes, this.meshes[p.shaftType])
+        if(this.mesh) {
+            app.scene.remove(this.mesh);
+        }
+        this.mesh = this.meshes[p.shaftType];
+        if(this.mesh) {
+            this.mesh.scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
+            app.scene.add(this.mesh);
+            app.rotate();
+        }
+/*
+        app.scene.add(this.meshes[shaftFiles[i]]);
         if(this.meshes[p.shaftType]){
             this.meshes[p.shaftType].scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
             this.meshes[p.shaftType].visible = !!p.shaftEnable;
             app.rotate();
         }
+        */
     }
 }
 class Top {
