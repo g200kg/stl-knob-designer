@@ -518,7 +518,7 @@ class Body {
         this.tube.addCircle({r1:p.bodyBottomDiameter*0.5, r2:5.8, z:0.0});
         this.tube.addCircle({r1:p.bodyBottomDiameter*0.5, r2:5.0, z:0.0});
         this.tube.addCircle({r1:topDia, r2:5.0, z:p.bodyHeight - p.bodyTopBevel});
-        this.tube.addCircle({r1:topDia - p.bodyTopBevel, r2:5.5, z:p.bodyHeight});
+        this.tube.addCircle({r1:topDia - p.bodyTopBevel, r2:5.0, z:p.bodyHeight});
         this.geo = this.tube.createGeo(p.bodySubdiv, p.bodyKnurlNum, p.bodyKnurlDepth);
     }
     update() {
