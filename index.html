@@ -125,7 +125,8 @@ h1 {
         <tr><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
         <tr><td>Rotate(deg)</td><td><webaudio-slider id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-slider></td><td><webaudio-param link="shaftRotate"></webaudio-param></td></tr>
 
-        <tr><td rowspan="5"><webaudio-switch id="topEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5">TOP</td><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
+        <tr><td rowspan="6"><webaudio-switch id="topEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="6">TOP</td><td>Type</td><td colspan="2"><select id="topType" onchange="editParam(this)"><option>Cylinder</option><option>Sphere</option><option>Ring</option></select></td></tr>
+        <tr><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
         <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
         <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
         <tr><td>Height(mm)</td><td><webaudio-slider id="topHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="topHeight"></webaudio-param></td></tr>
@@ -230,6 +231,7 @@ const paramDefault = {
         shaftFineAdj: 0,
         shaftRotate: 0,
         topEnable: 1,
+        topType: "Cylinder",
         topSubdiv: 36,
         topTopDiameter: 80,
         topBottomDiameter: 80,
@@ -241,7 +243,7 @@ const paramDefault = {
         bodyKnurlNum: 12,
         bodyKnurlDepth: 0.6,
         bodyKnurlWidth: 0,
-        bodyTopDiameter: 80,
+        bodyTopDiameter: 90,
         bodyTopBevel: 0.5,
         bodyBottomDiameter: 15.0,
         bodyHeight: 15.0,
@@ -436,9 +438,29 @@ class Top {
     getGeo() {
         const p = paramCurrent.params;
         this.tube.clear();
-        this.tube.addCircle({r1:(p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter*0.01)*0.5, r2:0, z:p.bodyHeight});
-        this.tube.addCircle({r1:(p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter*0.01) * p.topTopDiameter*0.01 *0.5, r2:0, z:p.bodyHeight+p.topHeight});
-        this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
+        const rb = p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter * 0.005;
+        switch(p.topType) {
+        case "Cylinder":
+            this.tube.addCircle({r1: rb, r2: 0, z: p.bodyHeight});
+            this.tube.addCircle({r1: rb * p.topTopDiameter * 0.01, r2: 0, z: p.bodyHeight+p.topHeight});
+            this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
+            break;
+        case "Sphere":
+            for(let t = 0; t < 90; t += 12.5) {
+                const th = t * Math.PI / 180;
+                const r2 = rb * p.topTopDiameter * 0.01;
+                const r = r2 + (rb - r2) * Math.cos(th);
+                const h = p.bodyHeight + p.topHeight * Math.sin(th);
+                this.tube.addCircle({r1: r, r2: 0, z: h});
+            }
+            this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
+            break;
+        case "Ring":
+            this.tube.addCircle({r1: rb, r2: rb * p.topTopDiameter * 0.01, z: p.bodyHeight});
+            this.tube.addCircle({r1: rb, r2: rb * p.topTopDiameter * 0.01, z: p.bodyHeight + p.topHeight});
+            this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
+            break;
+        }
     }
     update() {
         const p = paramCurrent.params;
@@ -585,7 +607,6 @@ class App {
     constructor() {
         this.width = 480;
         this.height = 630;
-
     }
     editParam(event) {
 //        console.log("editParam",event.id, event.value);
@@ -610,6 +631,10 @@ class App {
             break;
         case "topEnable":
             p.topEnable = event.value;
+            app.partsTop.update();
+            break;
+        case "topType":
+            p.topType = event.value;
             app.partsTop.update();
             break;
         case "topSubdiv":
@@ -828,7 +853,7 @@ class App {
         const def = JSON.parse(localStorage.getItem('defaultParam'));
         if(def && def.program == 'STLKnobDesigner' && def.version <= paramCurrent.version) {
             console.log(JSON.parse(localStorage.getItem('defaultParam')));
-            paramCurrent.params = def.params;
+            paramCurrent.params = Object.assign(paramCurrent.params, def.params);
         }
     }
     updateParams() {
@@ -837,11 +862,14 @@ class App {
         document.getElementById("shaftType").value = p.shaftType;
         document.getElementById("shaftFineAdj").setValue(p.shaftFineAdj, true);
         document.getElementById("shaftRotate").setValue(p.shaftRotate, true);
+        document.getElementById("topEnable").setValue(p.topEnable, true);
+        document.getElementById("topType").value = p.topType;
         document.getElementById("topSubdiv").setValue(p.topSubdiv, true);
         document.getElementById("topTopDiameter").setValue(p.topTopDiameter, true);
         document.getElementById("topBottomDiameter").setValue(p.topBottomDiameter, true);
         document.getElementById("topHeight").setValue(p.topHeight, true);
         document.getElementById("topColor").value = document.getElementById("topColorInput").value = p.topColor;
+        document.getElementById("bodyEnable").setValue(p.bodyEnable, true);
         document.getElementById("bodySubdiv").setValue(p.bodySubdiv, true);
         document.getElementById("bodyTopDiameter").setValue(p.bodyTopDiameter, true);
         document.getElementById("bodyTopBevel").setValue(p.bodyTopBevel, true);
@@ -852,11 +880,13 @@ class App {
         document.getElementById("bodyKnurlDepth").setValue(p.bodyKnurlDepth, true);
         document.getElementById("bodyKnurlWidth").setValue(p.bodyKnurlWidth, true);
         document.getElementById("bodyColor").value = document.getElementById("bodyColorInput").value = p.bodyColor;
+        document.getElementById("skirtEnable").setValue(p.skirtEnable, true);
         document.getElementById("skirtSubdiv").setValue(p.skirtSubdiv, true);
         document.getElementById("skirtDiameter").setValue(p.skirtDiameter, true);
         document.getElementById("skirtBevel").setValue(p.skirtBevel, true);
         document.getElementById("skirtHeight").setValue(p.skirtHeight, true);
         document.getElementById("skirtColor").value = document.getElementById("skirtColorInput").value = p.skirtColor;
+        document.getElementById("pointerEnable").setValue(p.pointerEnable, true);
         document.getElementById("pointerLength").setValue(p.pointerLength, true);
         document.getElementById("pointerWidth").setValue(p.pointerWidth, true);
         document.getElementById("pointerHeight").setValue(p.pointerHeight, true);
