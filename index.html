@@ -223,7 +223,7 @@ const shaftFiles = [
 ];
 const paramDefault = {
     program: "STLKnobDesigner",
-    version: "0.3.0",
+    version: "0.3.1",
     params: {
         shaftEnable: 1,
         shaftType: shaftFiles[0],
@@ -324,7 +324,7 @@ class Tube {
         case 2:
             const t = Math.pow((1+Math.cos(th))*0.5, Math.pow(2, -p.bodyKnurlWidth));
             if(t>=0.5) return 1;
-            return -1;
+            return 0;
         }
     }
     knurling(th) {
@@ -407,7 +407,6 @@ class Shaft {
                 this.meshes[shaftFiles[i]].visible = false;
         }
 */
-console.log(p.shaftType, this.meshes, this.meshes[p.shaftType])
         if(this.mesh) {
             app.scene.remove(this.mesh);
         }
@@ -927,6 +926,7 @@ class App {
     }
     export() {
         console.log('app.export()');
+        document.getElementById("knobrot").setValue(0, true);
         const data = this.stlExporter.parse(this.scene, false);
         const link = document.createElement('a');
         const blob = new Blob([data], {type:'text/plain'});
@@ -934,7 +934,6 @@ class App {
         link.download = "knob.stl";
         link.click();
         URL.revokeObjectURL(link.href);
-
     }
 }
 window.clearSettings = () => {
