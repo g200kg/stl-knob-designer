@@ -6,22 +6,38 @@
 html {
     font-size:14px;
     margin:0;
+    padding:0;
 }
 body {
-    background:#1f243a;
+    background:#222;
     color:#e0e0e0;
     margin:0;
-    padding:2px 15px;
+    padding:0;
 }
 td {
     font-size: 13.5px;
-    border: 1px solid #668;
+    background: #223;
+/*    border: 1px solid #666;*/
     padding:0px 5px;
+    text-align: center;
+}
+select {
+    width: 150px;
+}
+button {
+    width: 160px;
+    height: 32px;
+    background:#ccd;
+    font-size:14px;
 }
 canvas {
     border:1px solid #666666;
+    margin:5px;
     width:480px;
-    height:480px;
+    height:600px;
+}
+table {
+    margin:5px;
 }
 h1 {
     margin:auto 20px;
@@ -41,27 +57,40 @@ h1 {
     border:none;
 }
 #header {
-    display:flex;
-    margin:20px;
+    position:relative;
+    margin:0;
+    padding:0;
     background:#445;
     color:#ccf;
-    margin:0px 5px;
 }
 #header a {
     color:#ccf;
 }
 #main {
     position:relative;
+    background:#445;
     margin:10px auto;
     width:1050px;
-    border:1px solid #666;
+    border:none;
     padding:1px 10px;
+}
+#menu {
+    background:#666686;
+    padding:5px 10px;
+    margin:0;
 }
 #knobrot {
     position:absolute;
-    left:5px;
-    bottom:5px;
+    left:12px;
+    bottom:12px;
     width:200px;
+}
+#parampane {
+    width:480px;
+    height:600px;
+    overflow-y:scroll;
+    margin:5px;
+    border:1px solid #666666;
 }
 #aboutpane {
     display:none;
@@ -94,65 +123,79 @@ h1 {
 #aboutclose {
     position:absolute;
     right:20px;
-    bottom:20px 80px;
+    top:20px;
 }
 </style>
+
+<!--<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+<script src="js/jquery.gorilla-dropdown.min.js"></script>
+<link rel="stylesheet" href="js/jquery.gorilla-dropdown.css">-->
+
 <body>
 <div id="header">
-    <img src="images/g200kg160x80.png"/>
-    <div>
-    <h1>STL Knob Designer</h1>
-    <p style="margin:0px 50px">v<span id="version"></span> g200kg</p>
-    <p style="margin:0px 50px">Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a></p>
+    <div style="display:flex">
+        <img src="images/g200kg160x80.png"/>
+        <div style="display:flex;flex-direction:column">    
+            <h1>STL Knob Designer</h1>
+            <p style="margin:0px 40px">v <span id="version"></span> g200kg</p>
+            <p style="margin:0px 40px">Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a> </p>
+        </div>
     </div>
+    <p style="position:absolute;right:10px;bottom:0;vertical-align:middle;height:20px"><label><input id="langen" type="radio" name="lang" onchange="app.setLocale('en')"/>English</label> | <label><input id="langja" type="radio" name="lang" onchange="app.setLocale('ja')"/>日本語</label></p>
+    <!--<p style="position:absolute;right:10px;bottom:0"><a style="height:26px;width:100px" onclick="app.setLocale('en')">English</a> | <a style="height:26px;width:100px" onclick="app.setLocale('ja')">日本語</a></p>-->
+</div>
+<div id="menu">
+    <button id="cmdExport" onclick="app.export()">Export as STL</button>
+    <button id="cmdSave" onclick="app.save()">Save Param (JSON)</button>
+    <button id="cmdLoad" onclick="app.load()">Load Param (JSON)</button>
+    <button id="cmdSetDefault" onclick="app.setDefault()">Set Default</button>
+    <button id="cmdAbout" onclick="app.about()">About</button>
 </div>
 <div id="main">
-    <button onclick="app.export()">Export as STL</button>
-    <button onclick="app.save()">Save Param (JSON)</button>
-    <button onclick="app.load()">Load Param (JSON)</button>
-    <button onclick="app.saveDefault()">Save Default</button>
-    <button onclick="app.about()">About</button>
-<div style="display:flex">
+<div style="display:flex;justify-content: center;">
 <div style="position:relative">
     <canvas id="canvas" ></canvas>
     <webaudio-slider id="knobrot" defvalue="0" min="-145" max="145" oninput="app.rotate(this)"></webaudio-slider>
 </div>
-<div style="height:630px;overflow-y:scroll">
+<div id="parampane">
     <div>
     <table>
-        <tr><td rowspan="3"><webaudio-switch id="shaftEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="3">SHAFT</td><td>Type</td><td colspan="2"><select id="shaftType" onchange="editParam(this)">
+        <tr><td rowspan="4"><webaudio-switch id="shaftEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="4" id="lbShaft">SHAFT</td><td id="lbShaftType">Type</td><td colspan="2"><select id="shaftType" onchange="editParam(this)">
         </select></td></tr>
-        <tr><td>FineAdjust(%)</td><td><webaudio-slider id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="shaftFineAdj"></webaudio-param></td></tr>
-        <tr><td>Rotate(deg)</td><td><webaudio-slider id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-slider></td><td><webaudio-param link="shaftRotate"></webaudio-param></td></tr>
+        <tr><td id="lbShaftFineAdj">FineAdjust(%)</td><td style="width:80px"><webaudio-knob id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftFineAdj" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbShaftRotate">Rotate(deg)</td><td><webaudio-knob id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-knob></td><td><webaudio-param link="shaftRotate" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbShaftHeight">Height(mm)</td><td><webaudio-knob id="shaftHeight" oninput="editParam(this)" min="10" max="20" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftHeight" fontSize="14"></webaudio-param></td></tr>
 
-        <tr><td rowspan="6"><webaudio-switch id="topEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="6">TOP</td><td>Type</td><td colspan="2"><select id="topType" onchange="editParam(this)"><option>Cylinder</option><option>Sphere</option><option>Ring</option></select></td></tr>
-        <tr><td>Subdivide</td><td><webaudio-slider id="topSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="topSubdiv"></webaudio-param></td></tr>
-        <tr><td>TopDiameter(%)</td><td><webaudio-slider id="topTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topTopDiameter"></webaudio-param></td></tr>
-        <tr><td>BottomDiameter(%)</td><td><webaudio-slider id="topBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-slider></td><td><webaudio-param link="topBottomDiameter"></webaudio-param></td></tr>
-        <tr><td>Height(mm)</td><td><webaudio-slider id="topHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="topHeight"></webaudio-param></td></tr>
-        <tr><td>Color</td><td><input type="color" id="topColor" oninput="editParam(this)"/></td><td><input id="topColorInput" class="paramcolor" onchange="editParam(this)"/></td></tr>
+        <tr><td rowspan="7"><webaudio-switch id="capEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="7" id="lbCap">CAP</td><td id="lbCapType">Type</td><td colspan="2"><select id="capType" onchange="editParam(this)"><option>Cylinder</option><option>Sphere</option><option>Ring</option></td></tr>
+        <tr><td id="lbCapSubdiv">Subdivide</td><td><webaudio-knob id="capSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-knob></td><td><webaudio-param link="capSubdiv" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbCapTopDiameter">TopDiameter(%)</td><td><webaudio-knob id="capTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-knob></td><td><webaudio-param link="capTopDiameter" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbCapBottomDiameter">BottomDiameter(%)</td><td><webaudio-knob id="capBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-knob></td><td><webaudio-param link="capBottomDiameter" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbCapHeight">Height(mm)</td><td><webaudio-knob id="capHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="capHeight" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbCapNotchWidth">NotchWidth(mm)</td><td><webaudio-knob id="capNotchWidth" oninput="editParam(this)" min="0.0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="capNotchWidth" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbCapColor">Color</td><td><input type="color" id="capColor" oninput="editParam(this)"/></td><td><input id="capColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
 
-        <tr><td rowspan="10"><webaudio-switch id="bodyEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="10">BODY</td><td>Subdivide</td><td><webaudio-slider id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-slider></td><td><webaudio-param link="bodySubdiv"></webaudio-param></td></tr>
-        <tr><td>TopDiameter(%)</td><td><webaudio-slider id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-slider></td><td><webaudio-param link="bodyTopDiameter"></webaudio-param></td></tr>
-        <tr><td>TopBevel(mm)</td><td><webaudio-slider id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></webaudio-slider></td><td><webaudio-param link="bodyTopBevel"></webaudio-param></td></tr>
-        <tr><td>BottomDiameter(mm)</td><td><webaudio-slider id="bodyBottomDiameter" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyBottomDiameter"></webaudio-param></td></tr>
-        <tr><td>Height(mm)</td><td><webaudio-slider id="bodyHeight" oninput="editParam(this)" min="11" max="50" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyHeight"></webaudio-param></td></tr>
-        <tr><td>KnurlForm</td><td><webaudio-slider id="bodyKnurlForm" oninput="editParam(this)" min="0" max="2" step="1" tracking="abs" conv="['None','Sin','Sqr'][x]"></webaudio-slider></td><td><webaudio-param link="bodyKnurlForm"></webaudio-param></td></tr>
-        <tr><td>KnurlNum</td><td><webaudio-slider id="bodyKnurlNum" oninput="editParam(this)" min="0" max="36" step="1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlNum"></webaudio-param></td></tr>
-        <tr><td>KnurlDepth(mm)</td><td><webaudio-slider id="bodyKnurlDepth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlDepth"></webaudio-param></td></tr>
-        <tr><td>KnurlWidth</td><td><webaudio-slider id="bodyKnurlWidth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-slider></td><td><webaudio-param link="bodyKnurlWidth"></webaudio-param></td></tr>
-        <tr><td>Color</td><td><input type="color" id="bodyColor" oninput="editParam(this)"/></td><td><input id="bodyColorInput" class="paramcolor" onchange="editParam(this)"/></td></tr>
+        <tr><td rowspan="10"><webaudio-switch id="bodyEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="10" id="lbBody">BODY</td><td id="lbBodySubdiv">Subdivide</td><td><webaudio-knob id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-knob></td><td><webaudio-param link="bodySubdiv" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyTopDiameter">TopDiameter(%)</td><td><webaudio-knob id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-knob></td><td><webaudio-param link="bodyTopDiameter" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyTopBevel">TopBevel(mm)</td><td><webaudio-knob id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></webaudio-knob></td><td><webaudio-param link="bodyTopBevel" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyBottomDiameter">BottomDiameter(mm)</td><td><webaudio-knob id="bodyBottomDiameter" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyBottomDiameter" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyHeight">Height(mm)</td><td><webaudio-knob id="bodyHeight" oninput="editParam(this)" min="12" max="50" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyHeight" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyKnurlForm">KnurlForm</td><td><webaudio-knob id="bodyKnurlForm" oninput="editParam(this)" min="0" max="2" step="1" tracking="abs" conv="['None','Sin','Sqr'][x]"></webaudio-knob></td><td><webaudio-param link="bodyKnurlForm" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyKnurlNum">KnurlNum</td><td><webaudio-knob id="bodyKnurlNum" oninput="editParam(this)" min="0" max="36" step="1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlNum" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyKnurlDepth">KnurlDepth(mm)</td><td><webaudio-knob id="bodyKnurlDepth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlDepth" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyKnurlWidth">KnurlWidth</td><td><webaudio-knob id="bodyKnurlWidth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlWidth" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbBodyColor">Color</td><td><input type="color" id="bodyColor" oninput="editParam(this)"/></td><td><input id="bodyColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
 
-        <tr><td rowspan="5"><webaudio-switch id="skirtEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5">SKIRT</td><td>Subdivide</td><td><webaudio-slider id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-slider></td><td><webaudio-param link="skirtSubdiv"></webaudio-param></td></tr>
-        <tr><td>Diameter(Body+mm)</td><td><webaudio-slider id="skirtDiameter" oninput="editParam(this)" min="0" max="10.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtDiameter"></webaudio-param></td></tr>
-        <tr><td>Bevel(mm)</td><td><webaudio-slider id="skirtBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtBevel"></webaudio-param></td></tr>
-        <tr><td>Height(mm)</td><td><webaudio-slider id="skirtHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="skirtHeight"></webaudio-param></td></tr>
-        <tr><td>Color</td><td><input type="color" id="skirtColor" oninput="editParam(this)"/></td><td><input id="skirtColorInput" class="paramcolor" onchange="editParam(this)"/></td></tr>
+        <tr><td rowspan="5"><webaudio-switch id="skirtEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5" id="lbSkirt">SKIRT</td><td id="lbSkirtSubdiv">Subdivide</td><td><webaudio-knob id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-knob></td><td><webaudio-param link="skirtSubdiv" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbSkirtDiameter">Diameter(mm)</td><td><webaudio-knob id="skirtDiameter" oninput="editParam(this)" min="0" max="10.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtDiameter" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbSkirtBevel">Bevel(mm)</td><td><webaudio-knob id="skirtBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtBevel" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbSkirtHeight">Height(mm)</td><td><webaudio-knob id="skirtHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtHeight" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbSkirtColor">Color</td><td><input type="color" id="skirtColor" oninput="editParam(this)"/></td><td><input id="skirtColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
 
-        <tr><td rowspan="4"><webaudio-switch id="pointerEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="4">POINTER</td><td>Length(mm)</td><td><webaudio-slider id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerLength"></webaudio-param></td></tr>
-        <tr><td>Width(mm)</td><td><webaudio-slider id="pointerWidth" oninput="editParam(this)" min="0.5" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerWidth"></webaudio-param></td></tr>
-        <tr><td>Height(mm)</td><td><webaudio-slider id="pointerHeight" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerHeight"></webaudio-param></td></tr>
-        <tr><td>Bevel(mm)</td><td><webaudio-slider id="pointerBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-slider></td><td><webaudio-param link="pointerBevel"></webaudio-param></td></tr>
+        <tr><td rowspan="5"><webaudio-switch id="pointerEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5" id="lbPointer">POINTER</td><td id="lbPointerLength">Length(mm)</td><td><webaudio-knob id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerLength" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbPointerWidth">Width(mm)</td><td><webaudio-knob id="pointerWidth" oninput="editParam(this)" min="0.5" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerWidth" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbPointerHeight">Height(mm)</td><td><webaudio-knob id="pointerHeight" oninput="editParam(this)" min="-0.1" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerHeight" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbPointerBevel">Bevel(mm)</td><td><webaudio-knob id="pointerBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerBevel" fontSize="14"></webaudio-param></td></tr>
+        <tr><td id="lbPointerColor">Color</td><td><input type="color" id="pointerColor" oninput="editParam(this)"/></td><td><input id="pointerColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
     </table>
     </div>
     </div>
@@ -163,29 +206,11 @@ h1 {
 <div id="aboutcontent">
 <h2>STL Knob Designer</h2>
 
-<p>This is a program that generates STL files of potentiometer-knobs for 3D printers. The potentiometer should be a 6mm diameter 15mm long, knurled shaft .</p>
-
-<p>If your printer can output '3DBenchy' model fine without supports, you don't need to add supports.</p>
-
-<p>This program assuming use with an FDM machine, and a slightly elastic filament such as PETG rather than PLA. Also, depending on the printer model, settings and filament type, it may be necessary to fine-tune the fit with the shaft.</p>
-
-<p>The fitting to the shaft can be fine-tuned with [SHAFT]-[FineAdject].</p>
-
-<p>The color setting is not reflected in the STL file, you can pause at a specific layer in the slicer and manually swap filaments.</p>
-
-----
-
-<p>これは 3D プリンタで造形可能なツマミの STL ファイルを生成するプログラムです。6mm 径の 15mm 長、ローレット軸のシャフトを持つポテンショメータ用のツマミのデータを生成します。  </p>
-
-<p>FDM 機での使用を想定しており、フィラメントは PLA よりも PETG 等の多少の弾力性のある材料を推奨します。</p>
-
-<p>サポート無しで '3DBenchy' くらいがちゃんと造形できているのであれば、サポートの追加は必要ありません。
-またプリンタの機種やフィラメントの種類によってプリンタの印刷設定等で、軸との篏合を微調整する必要があるかもしれません。</p>
-
-<p>シャフトとの篏合の硬さは [SHAFT]-[FineAdjust] で微調整できます。</p>
-
-<p>色の設定は STL ファイルには反映されませんが、スライサーで TOP 部が始まるレイヤーを確認して、そこでプリンターを一時停止して、フィラメントを手動で入れ替えるなどの手段を取る事ができます。</p>
-
+<span id="abouttext"></span>
+<hr/>
+<img src="Shaft/Knob.png"/>
+<hr/>
+Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a>
 <hr/>
 g200kg
 </div>
@@ -197,14 +222,15 @@ g200kg
 <script type="importmap">
     {
         "imports": {
-            "three": "https://unpkg.com/three@0.142.0/build/three.module",
-            "three/": "https://unpkg.com/three@0.142.0/",
-            "three/addons/": "https://unpkg.com/three@0.142.0/examples/jsm/"
+            "three": "https://unpkg.com/three@0.153.0/build/three.module",
+            "three/": "https://unpkg.com/three@0.153.0/",
+            "three/addons/": "https://unpkg.com/three@0.153.0/examples/jsm/"
         }
     }
 </script>
 <script>
     WebAudioControlsOptions={
+        knobDiameter:36,
         switchHeight:28,
         sliderWidth:180,
         paramWidth:60
@@ -216,7 +242,102 @@ g200kg
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
-import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
+
+//import { SUBTRACTION, Brush, Evaluator } from "three-bvh-csg";
+
+const localeStr = {
+    en:[
+        {name:"abouttext", type:"text", val:
+            "<p>This is a program that generates STL files of potentiometer-knobs for 3D printers. This program assumes that the potentiometer has a 6mm diameter and a knurled or D-shaped shaft.</p>"+
+            "<p>This program assuming use with an FDM machine, and a slightly elastic filament such as PETG rather than PLA. You should more precisely adjust the shaft joint if you want to use PLA.</p>"+
+            "<p>If your printer can output '3DBenchy' model fine without supports, you don't need to add supports. When placing the tip of the knob upwards on the platform, the base of the knob has an overhang at a 45 degree angle.</p>"+
+            "<p>Depending on the printer model, settings and filament type, it may be necessary to fine-tune the fit with the shaft. For slicers such as 'Cura', the [Horizontal Expansion] and [Hole Horizontal Expansion] settings affect the size of the shaft-hole. You should adjust the size of the hole-shape in advance with these settings. Also the fitting to the shaft can be fine-tuned with the [SHAFT]-[FineAdject] parameter of this program.</p>"+
+            "<p>The color setting is not reflected in the STL file, you can pause at a specific layer in the slicer and manually swap filaments.</p>"
+        },
+        {name:"cmdExport", type:"title", val:"Output the created knob as an STL file"},
+        {name:"cmdSave", type:"title", val:"Save current settings as a JSON file"},
+        {name:"cmdLoad", type:"title", val:"Load settings from a JSON file"},
+        {name:"cmdSetDefault", type:"title", val:"Save current settings as default"},
+        {name:"cmdAbout", type:"title", val:"Show program description"},
+        {name:"lbShaftType", type:"title", val:"Fitting shape of the shaft, knurled or D shape"},
+        {name:"lbShaftFineAdj", type:"title", val:"Fine adjustment of fitting with the shaft. Loose in the + direction and tight in the - direction."},
+        {name:"lbShaftRotate", type:"title", val:"Default value for shaft rotation. Affects the orientation of the D-cut notch"},
+        {name:"lbShaftHeight", type:"title", val:"Length from shaft-base to shaft tip. About 11mm is appropriate when screwing a potentiometer with a general 15mm long shaft to the panel."},
+        {name:"lbCapType", type:"title", val:"Knob cap shape"},
+        {name:"lbCapSubdiv", type:"title", val:"Number to divide the circumference of the knob cap"},
+        {name:"lbCapTopDiameter", type:"title", val:"Top diameter ratio of knob cap"},
+        {name:"lbCapBottomDiameter", type:"title", val:"Base diameter of knob cap"},
+        {name:"lbCapHeight", type:"title", val:"Knob cap height"},
+        {name:"lbCapNotchWidth", type:"title", val:"Notch in Knob Cap"},
+        {name:"lbCapColor", type:"title", val:"Knob cap color"},
+        {name:"lbBodySubdiv", type:"title", val:"Number to divide the circumference of the knob body"},
+        {name:"lbBodyTopDiameter", type:"title", val:"Top diameter ratio of knob cap"},
+        {name:"lbBodyBevel", type:"title", val:"Bevel of knob body top"},
+        {name:"lbBodyBottomDiameter", type:"title", val:"Base diameter of knob body"},
+        {name:"lbBodyHeight", type:"title", val:"Knob body height"},
+        {name:"lbBodyKnurlForm", type:"title", val:"Groove shape added to the body"},
+        {name:"lbBodyKnurlNum", type:"title", val:"Number of grooves on body"},
+        {name:"lbBodyKnurlDepth", type:"title", val:"Depth of grooves on body"},
+        {name:"lbBodyKnurlWidth", type:"title", val:"Width of grooves on body"},
+        {name:"lbBodyColor", type:"title", val:"Body color"},
+        {name:"lbSkirtSubdiv", type:"title", val:"Number to divide the circumference of the knob skirt"},
+        {name:"lbSkirtDiameter", type:"title", val:"Base diameter of knob skirt"},
+        {name:"lbSkirtBevel", type:"title", val:"Bevel of knob skirt"},
+        {name:"lbSkirtHeight", type:"title", val:"Knob skirt height"},
+        {name:"lbSkirtColor", type:"title", val:"Knob skirt color"},
+        {name:"lbPointerLength", type:"title", val:"Pointer length"},
+        {name:"lbPointerWidth", type:"title", val:"Pointer width"},
+        {name:"lbPointerHeight", type:"title", val:"Pointer height"},
+        {name:"lbPointerBevel", type:"title", val:"Bevel of pointer"},
+        {name:"lbPointerColor", type:"title", val:"Pointer color"}
+    ],
+    ja:[
+        {name:"abouttext", type:"text", val:
+            "<p>これは 3D プリンタで造形可能なツマミの STL ファイルを生成するプログラムです。6mm 径の ローレット軸または D 型のシャフトを持つポテンショメータ用のツマミのデータを生成します。</p>"+
+            "<p>FDM 機での使用を想定しており、フィラメントは PLA よりも PETG 等の多少の弾力性のある材料の方が簡単です。 PLA でも造形可能ですが、シャフトとの篏合の硬さの調整がシビアになります。</p>"+
+            "<p>サポート無しで '3DBenchy' くらいがちゃんと造形できているのであれば、サポートの追加は必要ありません。プラットフォームにノブの先端を上向きに配置した時、ノブの底の部分にオーバーハングがありますが角度は 45 度になっています。</p>"+
+            "<p>プリンタの機種やフィラメントの種類によって印刷設定等で、シャフトとの篏合を微調整する必要があるかもしれません。 Cura ベースのスライサーでは [水平展開 (Horizontal Expansion)] と [穴の水平展開 (Hole Horizontal Expansion)] の設定がシャフトが入る穴のサイズに影響します。これらの設定で穴形状の造形時に誤差が無くなるようにあらかじめ補正しておいてください。 また、シャフトとの篏合の硬さは [SHAFT]-[FineAdjust] で微調整できます。</p>"+
+            "<p>色の設定は STL ファイルには反映されませんが、スライサーで CAP 部が始まるレイヤーを確認して、そこでプリンターを一時停止して、フィラメントを手動で入れ替えるなどの手段を取る事ができます。</p>"
+        },
+        {name:"cmdExport", type:"title", val:"作成したノブを STL ファイルとして出力"},
+        {name:"cmdSave", type:"title", val:"現在の設定を JSON ファイルとして保存"},
+        {name:"cmdLoad", type:"title", val:"JSON ファイルとして保存した設定をロード"},
+        {name:"cmdSetDefault", type:"title", val:"現在の設定をデフォルトとして保存"},
+        {name:"cmdAbout", type:"title", val:"プログラムの説明を表示"},
+        {name:"lbShaftType", type:"title", val:"適合するシャフトの形状。ローレット軸または D 軸"},
+        {name:"lbShaftFineAdj", type:"title", val:"シャフトとの篏合のかたさを微調整。+方向で緩く、-方向できつくなります。"},
+        {name:"lbShaftRotate", type:"title", val:"シャフトの回転のデフォルト値。D 軸の切り欠きの方向に影響"},
+        {name:"lbShaftHeight", type:"title", val:"Shaft-Baseからシャフトの先端までの長さ。一般的な 15mm 長シャフトのポテンショメータをパネルにねじ止めした場合 11mm 程度が適正"},
+        {name:"lbCapType", type:"title", val:"ノブ先端部の形状"},
+        {name:"lbCapSubdiv", type:"title", val:"ノブ先端部の円周の分割数"},
+        {name:"lbCapTopDiameter", type:"title", val:"ノブ先端部の一番上の直径"},
+        {name:"lbCapBottomDiameter", type:"title", val:"ノブ先端部の基本部直径"},
+        {name:"lbCapHeight", type:"title", val:"ノブ先端部の高さ"},
+        {name:"lbCapNotchWidth", type:"title", val:"ノブ先端部のポインター方向の切れ目"},
+        {name:"lbCapColor", type:"title", val:"ノブ先端部の色"},
+        {name:"lbBodySubdiv", type:"title", val:"ボディ部の円周の分割数"},
+        {name:"lbBodyTopDiameter", type:"title", val:"ボディ部の上部の直径"},
+        {name:"lbBodyBevel", type:"title", val:"ボディ部の上部の傾斜"},
+        {name:"lbBodyBottomDiameter", type:"title", val:"ボディ部の一番下の直径"},
+        {name:"lbBodyHeight", type:"title", val:"ボディ部の高さ"},
+        {name:"lbBodyKnurlForm", type:"title", val:"ボディ部の凹凸の形状"},
+        {name:"lbBodyKnurlNum", type:"title", val:"ボディ部の凹凸の数"},
+        {name:"lbBodyKnurlDepth", type:"title", val:"ボディ部の凹凸の深さ"},
+        {name:"lbBodyKnurlWidth", type:"title", val:"ボディ部の凹凸の幅"},
+        {name:"lbBodyColor", type:"title", val:"ボディ部の色"},
+        {name:"lbSkirtSubdiv", type:"title", val:"スカート部の円周の分割数"},
+        {name:"lbSkirtDiameter", type:"title", val:"スカート部の円周の直径"},
+        {name:"lbSkirtBevel", type:"title", val:"スカート部の上端の傾斜"},
+        {name:"lbSkirtHeight", type:"title", val:"スカート部の高さ"},
+        {name:"lbSkirtColor", type:"title", val:"スカート部の色"},
+        {name:"lbPointerLength", type:"title", val:"ポインター部の長さ"},
+        {name:"lbPointerWidth", type:"title", val:"ポインター部の幅"},
+        {name:"lbPointerHeight", type:"title", val:"ポインター部の高さ"},
+        {name:"lbPointerBevel", type:"title", val:"ポインター部の上端の傾斜"},
+        {name:"lbPointerColor", type:"title", val:"ポインター部の色"}
+    ]
+};
 
 const shaftFiles = [
     "Shaft_Knurled",
@@ -224,19 +345,21 @@ const shaftFiles = [
 ];
 const paramDefault = {
     program: "STLKnobDesigner",
-    version: "0.3.2",
+    version: "0.4.0",
     params: {
         shaftEnable: 1,
         shaftType: shaftFiles[0],
         shaftFineAdj: 0,
         shaftRotate: 0,
-        topEnable: 1,
-        topType: "Cylinder",
-        topSubdiv: 36,
-        topTopDiameter: 80,
-        topBottomDiameter: 80,
-        topHeight: 1.0,
-        topColor: "#ff0000",
+        shaftHeight: 10,
+        capEnable: 1,
+        capType: "Cylinder",
+        capSubdiv: 36,
+        capTopDiameter: 80,
+        capBottomDiameter: 80,
+        capHeight: 1.0,
+        capNotchWidth: 0.5,
+        capColor: "#ff0000",
         bodyEnable: 1,
         bodySubdiv: 72,
         bodyKnurlForm: 1,
@@ -259,51 +382,46 @@ const paramDefault = {
         pointerWidth: 1.5,
         pointerHeight: 2.0,
         pointerBevel: 1.2,
+        pointerColor: "#ffffff",
     }
 };
 
 const paramCurrent = Object.assign({}, JSON.parse(JSON.stringify(paramDefault)));
+const canvasWidth = 480;
+const canvasHeight = 600;
 
-class Rectangular {
+class Rect {
     constructor() {
         this.geo = new THREE.BufferGeometry();
-        this.layers = [];
-        this.topBevel = 0.5;
+        this.vtx = [];
     }
     clear() {
-        this.layers = [];
+        this.vtx = [];
     }
-    addRect(layer) {
-        this.layers.push(layer);
+    addRect(x1,y1,z1,  x2,y2,z2,  x3,y3,z3,  x4,y4,z4) {
+        this.vtx.push(x1,y1,z1,  x2,y2,z2,  x3,y3,z3,  x4,y4,z4);
     }
     createGeo() {
-        const vtx = [];
         const indices = [];
-        for(let l=0; l < this.layers.length; ++l) {
-            const layer = this.layers[l];
-            vtx.push(layer.x1, layer.y1, layer.z);
-            vtx.push(layer.x2, layer.y1, layer.z);
-            vtx.push(layer.x1, layer.y2, layer.z);
-            vtx.push(layer.x2, layer.y2, layer.z);
-        }
-        this.vertices = new Float32Array(vtx);
-        indices.push(1, 0, 2);
-        indices.push(1, 2, 3);
+        this.vertices = new Float32Array(this.vtx);
+        indices.push(0, 2, 1);
+        indices.push(0, 3, 2);
         let vb = 0;
-        for(let l=1; l < this.layers.length; ++l, vb+=4) {
-            indices.push(vb+0, vb+5, vb+4);
-            indices.push(vb+1, vb+5, vb+0);
-            indices.push(vb+2, vb+0, vb+4);
-            indices.push(vb+2, vb+4, vb+6);
-            indices.push(vb+5, vb+1, vb+7);
-            indices.push(vb+7, vb+1, vb+3);
-            indices.push(vb+3, vb+2, vb+6);
-            indices.push(vb+7, vb+3, vb+6);
+        for(let l=12; l < this.vtx.length; l+=12, vb+=4) {
+            indices.push(vb+0, vb+1, vb+4);
+            indices.push(vb+1, vb+5, vb+4);
+            indices.push(vb+1, vb+2, vb+5);
+            indices.push(vb+2, vb+6, vb+5);
+            indices.push(vb+2, vb+3, vb+6);
+            indices.push(vb+3, vb+7, vb+6);
+            indices.push(vb+3, vb+0, vb+7);
+            indices.push(vb+0, vb+4, vb+7);
         }
-        indices.push(vb+0, vb+1, vb+2);
-        indices.push(vb+2, vb+1, vb+3);
+        indices.push(vb+0, vb+1, vb+3);
+        indices.push(vb+1, vb+2, vb+3);
+
         this.geo.setIndex(indices);
-        this.geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vtx), 3));
+        this.geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.vtx), 3));
         this.geo.computeVertexNormals();
         return this.geo;
     }
@@ -381,7 +499,6 @@ class Tube {
             indices.push(j, j+1, j2);
             indices.push(j3, j2, j+1);
         }
-
         this.geo.setIndex(indices);
         this.geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vtx), 3));
         this.geo.computeVertexNormals();
@@ -392,123 +509,255 @@ class Shaft {
     constructor() {
         this.stlLoader = new STLLoader();
         this.meshes = [];
+        this.mesh = [];
+        this.material = new THREE.MeshPhongMaterial({color: "#fff", flatShading:true});
         for(let i = 0; i < shaftFiles.length; ++i) {
             this.stlLoader.load('Shaft/'+shaftFiles[i]+'.stl', (geoShaft)=> {
-                this.material = new THREE.MeshPhongMaterial({color: "#fff", flatShading:true});
                 this.meshes[shaftFiles[i]] = new THREE.Mesh(geoShaft, this.material);
-//                this.meshes[shaftFiles[i]].visible = false;
-//                app.scene.add(this.meshes[shaftFiles[i]]);
                 this.update();
             });
         }
     }
     update() {
         const p = paramCurrent.params;
-/*        for(let i = 0; i < shaftFiles.length; ++i) {
-            if(this.meshes[shaftFiles[i]])
-                this.meshes[shaftFiles[i]].visible = false;
+        if(this.mesh.length) {
+            app.scene.remove(this.mesh[0]);
+            this.mesh = [];
         }
-*/
-        if(this.mesh) {
-            app.scene.remove(this.mesh);
+        if(p.shaftEnable) {
+            this.mesh = [this.meshes[p.shaftType]];
+            if(this.mesh.length && this.mesh[0]) {
+                this.mesh[0].scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
+                app.scene.add(this.mesh[0]);
+            }
         }
-        this.mesh = this.meshes[p.shaftType];
-        if(this.mesh) {
-            this.mesh.scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
-            app.scene.add(this.mesh);
-            app.rotate();
-        }
-/*
-        app.scene.add(this.meshes[shaftFiles[i]]);
-        if(this.meshes[p.shaftType]){
-            this.meshes[p.shaftType].scale.set(1.0 + p.shaftFineAdj*0.01, 1.0 + p.shaftFineAdj*0.01, 1.0);
-            this.meshes[p.shaftType].visible = !!p.shaftEnable;
-            app.rotate();
-        }
-        */
+        app.rotate();
     }
 }
-class Top {
-    constructor() {
+class Cap {
+    constructor(app) {
+        this.app = app;
         this.tube = new Tube();
-        this.geo = null;
-        this.mesh = null;
+        this.geo = [];
+        this.mesh = [];
         this.material = null;
     }
     getGeo() {
         const p = paramCurrent.params;
-        this.tube.clear();
-        const rb = p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.topBottomDiameter * 0.005;
-        switch(p.topType) {
-        case "Cylinder":
-            this.tube.addCircle({r1: rb, r2: 0, z: p.bodyHeight});
-            this.tube.addCircle({r1: rb * p.topTopDiameter * 0.01, r2: 0, z: p.bodyHeight+p.topHeight});
-            this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
-            break;
-        case "Sphere":
-            for(let t = 0; t < 90; t += 12.5) {
-                const th = t * Math.PI / 180;
-                const r2 = rb * p.topTopDiameter * 0.01;
-                const r = r2 + (rb - r2) * Math.cos(th);
-                const h = p.bodyHeight + p.topHeight * Math.sin(th);
-                this.tube.addCircle({r1: r, r2: 0, z: h});
+        const rb = p.bodyBottomDiameter * p.bodyTopDiameter*0.01 * p.capBottomDiameter * 0.005;
+        switch(p.capType) {
+            case "Cylinder": {
+                this.rect = new Rect();
+                const z1=p.bodyHeight;
+                const z2=z1 + p.capHeight;
+                const rb2=rb * p.capTopDiameter * 0.01;
+                const nw = Math.min(p.capNotchWidth, rb2);
+
+                for(let t = 0; t <= p.capSubdiv; ++t) {
+                    const th = t/p.capSubdiv * 2 * Math.PI;
+                    const sin = Math.sin(th);
+                    const cos = Math.cos(th);
+                    let r1x = rb*sin;
+                    let r1y = rb*cos;
+                    let r2x = rb2*sin;
+                    let r2y = rb2*cos;
+                    let r3x = nw*sin;
+                    let r3y = nw*cos;
+                    let z3 = z2;
+                    if(th >= 0 && th < Math.PI*0.5) {
+                        r1x = Math.max(nw, r1x);
+                        r1y = Math.sqrt(rb*rb - r1x*r1x);
+                        r2x = Math.max(nw, r2x);
+                        r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
+                        r3x = Math.max(nw, r3x);
+                        r3y = Math.sqrt(rb2*rb2 - r3x*r3x);
+                    }
+                    if(th >= Math.PI*1.5) {
+                        r1x = Math.min(-nw, r1x);
+                        r1y = Math.sqrt(rb*rb - r1x*r1x);
+                        r2x = Math.min(-nw, r2x);
+                        r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
+                        r3x = Math.min(-nw, r3x);
+                        r3y = Math.sqrt(rb2*rb2 - r3x*r3x);
+                    }
+                    this.rect.addRect(r1x, r1y, z1,   r2x, r2y, z2,    r3x,r3y,z2,    r3x,r3y,z1);
+                }
+                this.geo = [this.rect.createGeo()];
+                break;
             }
-            this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
             break;
-        case "Ring":
-            this.tube.addCircle({r1: rb, r2: rb * p.topTopDiameter * 0.01, z: p.bodyHeight});
-            this.tube.addCircle({r1: rb, r2: rb * p.topTopDiameter * 0.01, z: p.bodyHeight + p.topHeight});
-            this.geo = this.tube.createGeo(p.topSubdiv, 0, 0);
+        case "Sphere": {
+                const rr = (rb*p.capTopDiameter*0.01)-rb;
+                const zr = [
+                    {z:p.bodyHeight, r:rb},
+                    {z:p.bodyHeight + (p.capHeight * 0.259), r:rb + rr * (1-0.966)},
+                    {z:p.bodyHeight + (p.capHeight * 0.5), r:rb + rr * (1-0.866)},
+                    {z:p.bodyHeight + (p.capHeight * 0.707), r:rb + rr * (1-0.707)},
+                    {z:p.bodyHeight + (p.capHeight * 0.866), r:rb + rr * 0.5},
+                    {z:p.bodyHeight + (p.capHeight * 0.966), r:rb + rr * (1-0.259)},
+                    {z:p.bodyHeight + p.capHeight, r:rb+rr},
+                ];
+                this.geo = [];
+                for(let j = 0; j < zr.length - 1; ++j) {
+                    this.rect = new Rect();
+                    const z1 = zr[j].z;
+                    const z2 = zr[j + 1].z;
+                    const rb = zr[j].r;
+                    const rb2 = zr[j + 1].r;
+                    const nw = Math.min(p.capNotchWidth, rb2);
+
+                    for(let t = 0; t <= p.capSubdiv; ++t) {
+                        const th = t/p.capSubdiv * 2 * Math.PI;
+                        const sin = Math.sin(th);
+                        const cos = Math.cos(th);
+                        let r1x = rb*sin;
+                        let r1y = rb*cos;
+                        let r2x = rb2*sin;
+                        let r2y = rb2*cos;
+                        let r3x = nw*sin;
+                        let r3y = nw*cos;
+                        if(th >= 0 && th < Math.PI*0.5) {
+                            r1x = Math.max(nw, r1x);
+                            r1y = Math.sqrt(rb*rb - r1x*r1x);
+                            r2x = Math.max(nw, r2x);
+                            r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
+                            r3x = Math.max(nw, r3x);
+                            r3y = Math.sqrt(rb2*rb2 - r3x*r3x);
+                        }
+                        if(th >= Math.PI*1.5) {
+                            r1x = Math.min(-nw, r1x);
+                            r1y = Math.sqrt(rb*rb - r1x*r1x);
+                            r2x = Math.min(-nw, r2x);
+                            r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
+                            r3x = Math.min(-nw, r3x);
+                            r3y = Math.sqrt(rb2*rb2 - r3x*r3x);
+                        }
+                        this.rect.addRect(r1x, r1y, z1,   r2x, r2y, z2,    r3x,r3y,z2,    r3x,r3y,z1);
+                    }
+                    this.geo.push(this.rect.createGeo());
+                }
+            }
+            break;
+        case "Ring": {
+                this.rect = new Rect();
+                const z1=p.bodyHeight;
+                const z2=z1 + p.capHeight;
+                const rb2=rb * p.capTopDiameter * 0.01;
+                const nw = Math.min(p.capNotchWidth, rb2);
+                for(let t = 0; t <= p.capSubdiv; ++t) {
+                    const th = t/p.capSubdiv * 2 * Math.PI;
+                    const sin = Math.sin(th);
+                    const cos = Math.cos(th);
+                    let r1x = rb*sin;
+                    let r1y = rb*cos;
+                    let r2x = rb2*sin;
+                    let r2y = rb2*cos;
+                    let r3x = nw*sin;
+                    let r3y = nw*cos;
+                    if(th >= 0 && th < Math.PI*0.5) {
+                        r1x = Math.max(nw, r1x);
+                        r1y = Math.sqrt(rb*rb - r1x*r1x);
+                        r2x = Math.max(nw, r2x);
+                        r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
+                        r3x = Math.max(nw, r3x);
+                    }
+                    if(th >= Math.PI*1.5) {
+                        r1x = Math.min(-nw, r1x);
+                        r1y = Math.sqrt(rb*rb - r1x*r1x);
+                        r2x = Math.min(-nw, r2x);
+                        r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
+                        r3x = Math.min(-nw, r3x);
+                    }
+                    this.rect.addRect(r1x, r1y, z1,   r1x, r1y, z2,    r2x,r2y,z2,    r2x,r2y,z1);
+                }
+                this.geo = [this.rect.createGeo()];
+            }
             break;
         }
     }
     update() {
         const p = paramCurrent.params;
-        if(this.mesh) {
-            app.scene.remove(this.mesh);
-            this.mesh.geometry.dispose();
-            this.mesh.material.dispose();
+        if(this.mesh.length) {
+            for(let i = 0; i < this.mesh.length; ++i) {
+                app.scene.remove(this.mesh[i]);
+                this.mesh[i].geometry.dispose();
+            }
+            this.material.dispose();
         }
-        this.getGeo();
-        this.material = new THREE.MeshPhongMaterial({color: p.topColor, flatShading:true});
-        this.mesh = new THREE.Mesh(this.geo, this.material);
-        this.mesh.visible = !!p.topEnable;
-        app.scene.add(this.mesh);
+        if(p.capEnable) {
+            this.getGeo();
+            this.material = new THREE.MeshPhongMaterial({color: p.capColor, flatShading:true});
+            for(let i = 0; i < this.geo.length; ++i) {
+                this.mesh[i] = new THREE.Mesh(this.geo[i], this.material);
+                this.mesh[i].visible = !!p.capEnable;
+                app.scene.add(this.mesh[i]);
+            }
+        }
     }
 }
 class Lid {
     constructor() {
         this.tube = new Tube();
-        this.geo = null;
-        this.mesh = null;
+        this.rect = new Rect();
+        this.geo = [];
+        this.mesh = [];
         this.material = null;
         this.subdiv = paramCurrent.params.bodySubdiv;
     }
     getGeo() {
         const p = paramCurrent.params;
         this.tube.clear();
-        this.tube.addCircle({r1:5.5, r2:0, z:10.0});
-        this.tube.addCircle({r1:5.5, r2:0, z:p.bodyHeight});
-        this.geo = this.tube.createGeo(this.subdiv, 0, 0);
+        this.rect.clear();
+        this.tube.addCircle({r1: 5.0, r2: 5.0, z: p.shaftHeight - 1.5});
+        this.tube.addCircle({r1: 5.0, r2: 0.0, z: p.shaftHeight});
+        this.tube.addCircle({r1: 5.0, r2: 0.0, z: p.bodyHeight});
+        this.rect.clear();
+        this.rect.addRect(
+            0.6, 5.5, 0,
+            0.6, p.bodyBottomDiameter*0.5, 0,
+            -0.6, p.bodyBottomDiameter*0.5, 0,
+            -0.6, 5.5, 0);
+        this.rect.addRect(
+            0.6, 4.0, 2.0,
+            0.6, p.bodyBottomDiameter*0.5, 0.0,
+            -0.6, p.bodyBottomDiameter*0.5, 0.0,
+            -0.6, 4.0, 2.0);
+        this.rect.addRect(
+            0.6, 4.0, p.bodyHeight - p.bodyTopBevel,
+            0.6, p.bodyBottomDiameter*p.bodyTopDiameter*0.005, p.bodyHeight - p.bodyTopBevel,
+            -0.6, p.bodyBottomDiameter*p.bodyTopDiameter*0.005, p.bodyHeight - p.bodyTopBevel,
+            -0.6, 4.0, p.bodyHeight - p.bodyTopBevel);
+        this.geo[0] = this.tube.createGeo(24, 0, 0, 0);
+        this.geo[1] = this.rect.createGeo();
+        this.geo[2] = this.geo[1].clone();
+        this.geo[3] = this.geo[1].clone();
+        this.geo[4] = this.geo[1].clone();
+        this.geo[2].rotateZ(Math.PI*0.5);
+        this.geo[3].rotateZ(Math.PI*1.0);
+        this.geo[4].rotateZ(Math.PI*1.5);
     }
     update() {
         const p = paramCurrent.params;
-        if(this.mesh) {
-            app.scene.remove(this.mesh);
-            this.mesh.geometry.dispose();
-            this.mesh.material.dispose();
+        if(this.mesh.length) {
+            for(let i = 0; i < this.mesh.length; ++i) {
+                app.scene.remove(this.mesh[i]);
+                this.mesh[i].geometry.dispose();
+            }
+            this.material.dispose();
         }
         this.getGeo();
         this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
-        this.mesh = new THREE.Mesh(this.geo, this.material);
-        app.scene.add(this.mesh);
+        for(let i = 0; i < this.geo.length; ++i) {
+            this.mesh[i] = new THREE.Mesh(this.geo[i], this.material);
+            app.scene.add(this.mesh[i]);
+        }
     }
 }
 class Body {
     constructor() {
         this.tube = new Tube();
         this.geo = null;
-        this.mesh = null;
+        this.mesh = [];
         this.material = null;
     }
     getGeo() {
@@ -523,23 +772,24 @@ class Body {
     }
     update() {
         const p = paramCurrent.params;
-        if(this.mesh) {
-            app.scene.remove(this.mesh);
-            this.mesh.geometry.dispose();
-            this.mesh.material.dispose();
+        if(this.mesh.length) {
+            app.scene.remove(this.mesh[0]);
+            this.geo.dispose();
+            this.material.dispose();
         }
-        this.getGeo();
-        this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
-        this.mesh = new THREE.Mesh(this.geo, this.material);
-        this.mesh.visible = !!p.bodyEnable;
-        app.scene.add(this.mesh);
+        if(p.bodyEnable) {
+            this.getGeo();
+            this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
+            this.mesh = [new THREE.Mesh(this.geo, this.material)];
+            app.scene.add(this.mesh[0]);
+        }
     }
 }
 class Skirt {
     constructor() {
         this.tube = new Tube();
         this.geo = null;
-        this.mesh = null;
+        this.mesh = [];
         this.material = null;
     }
     getGeo() {
@@ -552,62 +802,84 @@ class Skirt {
     }
     update() {
         const p = paramCurrent.params;
-        if(this.mesh) {
-            app.scene.remove(this.mesh);
-            this.mesh.geometry.dispose();
-            this.mesh.material.dispose();
+        if(this.mesh.length) {
+            app.scene.remove(this.mesh[0]);
+            this.geo.dispose();
+            this.material.dispose();
         }
-        this.getGeo();
-        this.material = new THREE.MeshPhongMaterial({color: p.skirtColor, flatShading:true});
-        this.mesh = new THREE.Mesh(this.geo, this.material);
-        this.mesh.visible = !!p.skirtEnable;
-        app.scene.add(this.mesh);
+        if(p.skirtEnable) {
+            this.getGeo();
+            this.material = new THREE.MeshPhongMaterial({color: p.skirtColor, flatShading:true});
+            this.mesh = [new THREE.Mesh(this.geo, this.material)];
+            app.scene.add(this.mesh[0]);
+        }
     }
 }
 class Pointer {
     constructor() {
-        this.rect = new Rectangular();
-        this.mesh = null;
+        this.rect = new Rect();
+        this.mesh = [];
         this.material = null;
         this.geo = new THREE.BufferGeometry();
     }
     getGeo() {
         const p = paramCurrent.params;
         this.rect.clear();
-        const b = Math.min(p.pointerHeight, p.pointerBevel);
-        const z0 = 0;
-        const z1 = p.bodyHeight;
-        const z2 = p.bodyHeight + Math.max(0, p.pointerHeight - b);
-        const z3 = p.bodyHeight + p.pointerHeight;
-        const y0 = p.bodyBottomDiameter*0.5 + p.pointerLength;
-        const y1 = p.bodyBottomDiameter*p.bodyTopDiameter*0.01*0.5 + p.pointerLength;
-        const y2 = y1 + (y1 - y0) * (z2 - z1) / (z1 - z0);
-        const y3 = y1 + (y1 - y0) * (z3 - z1) / (z1 - z0) - b;
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.8, x2:p.pointerWidth*0.5, y2:y0, z:z0});
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:5.8, x2:p.pointerWidth*0.5, y2:y1, z:z1});
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:0, x2:p.pointerWidth*0.5, y2:y1, z:z1});
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:0, x2:p.pointerWidth*0.5, y2:y2, z:z2});
-        this.rect.addRect({x1:-p.pointerWidth*0.5, y1:b, x2:p.pointerWidth*0.5, y2:y3, z:z3});
+        const x1 = -p.pointerWidth * 0.5;
+        const x2 = p.pointerWidth * 0.5;
+        const b = Math.min(p.pointerBevel, p.bodyBottomDiameter * 0.5 * p.bodyTopDiameter * 0.01 * 0.5);
+        const zb = p.bodyHeight + p.pointerHeight - p.pointerBevel;
+        const yb = p.bodyBottomDiameter * 0.5 * p.bodyTopDiameter * 0.01 + p.pointerLength - p.pointerBevel;
+        const z2 = p.bodyHeight + p.pointerHeight - p.pointerBevel;
+        const yz = [
+            {y1:5.0, y2:p.bodyBottomDiameter * 0.5, z1:0, z2:0},
+            {y1:5.0, y2:p.bodyBottomDiameter * 0.5 + p.pointerLength, z1:p.pointerLength, z2:p.pointerLength},
+            {y1:5.0, y2:p.bodyBottomDiameter * 0.5 * p.bodyTopDiameter * 0.01 + p.pointerLength, z1:p.bodyHeight, z2:zb},
+            {y1:5.0, y2:p.bodyBottomDiameter * 0.5 * p.bodyTopDiameter * 0.01 + p.pointerLength - p.pointerBevel, z1:p.bodyHeight, z2:p.bodyHeight + p.pointerHeight},
+            {y1:0, y2:0, z1:p.bodyHeight, z2:p.bodyHeight + p.pointerHeight},
+        ];
+        for(let t = 0; t < yz.length; ++t){
+            this.rect.addRect(
+                x2, yz[t].y1, yz[t].z1,
+                x2, yz[t].y2, yz[t].z2,
+                x1, yz[t].y2, yz[t].z2,
+                x1, yz[t].y1, yz[t].z1,
+            );
+        }
+        this.rect.addRect(
+            p.pointerWidth*0.45,    -p.pointerWidth*0.25,   p.bodyHeight,
+            p.pointerWidth*0.45,    -p.pointerWidth*0.25,   p.bodyHeight+p.pointerHeight,
+            -p.pointerWidth*0.45,   -p.pointerWidth*0.25,   p.bodyHeight+p.pointerHeight,
+            -p.pointerWidth*0.45,   -p.pointerWidth*0.25,   p.bodyHeight);
+        this.rect.addRect(
+            p.pointerWidth*0.25,    -p.pointerWidth*0.43,   p.bodyHeight,
+            p.pointerWidth*0.25,    -p.pointerWidth*0.43,   p.bodyHeight+p.pointerHeight,
+            -p.pointerWidth*0.25,   -p.pointerWidth*0.43,   p.bodyHeight+p.pointerHeight,
+            -p.pointerWidth*0.25,   -p.pointerWidth*0.43,   p.bodyHeight);
+        this.rect.addRect(
+            0,  -p.pointerWidth*0.5,    p.bodyHeight,
+            0,  -p.pointerWidth*0.5,    p.bodyHeight+p.pointerHeight,
+            0,  -p.pointerWidth*0.5,    p.bodyHeight+p.pointerHeight,
+            0,  -p.pointerWidth*0.5,    p.bodyHeight);
         this.geo = this.rect.createGeo();
     }
     update() {
         const p = paramCurrent.params;
-        if(this.mesh) {
-            app.scene.remove(this.mesh);
-            this.mesh.geometry.dispose();
-            this.mesh.material.dispose();
+        if(this.mesh.length) {
+            app.scene.remove(this.mesh[0]);
+            this.geo.dispose();
+            this.material.dispose();
         }
-        this.getGeo();
-        this.material = new THREE.MeshPhongMaterial({color: p.bodyColor, flatShading:true});
-        this.mesh = new THREE.Mesh(this.geo, this.material);
-        this.mesh.visible = !!p.pointerEnable;
-        app.scene.add(this.mesh);
+        if(p.pointerEnable) {
+            this.getGeo();
+            this.material = new THREE.MeshPhongMaterial({color: p.pointerColor, flatShading:true});
+            this.mesh = [new THREE.Mesh(this.geo, this.material)]
+            app.scene.add(this.mesh[0]);
+        }
     }
 }
 class App {
     constructor() {
-        this.width = 480;
-        this.height = 630;
     }
     editParam(event) {
 //        console.log("editParam",event.id, event.value);
@@ -630,39 +902,47 @@ class App {
             app.partsShaft.update();
             app.rotate();
             break;
-        case "topEnable":
-            p.topEnable = event.value;
-            app.partsTop.update();
+        case "shaftHeight":
+            p.shaftHeight = event.value;
+            app.partsLid.update();
             break;
-        case "topType":
-            p.topType = event.value;
-            app.partsTop.update();
+        case "capEnable":
+            p.capEnable = event.value;
+            app.partsCap.update();
             break;
-        case "topSubdiv":
-            p.topSubdiv = event.value;
-            app.partsTop.update();
+        case "capType":
+            p.capType = event.value;
+            app.partsCap.update();
             break;
-        case "topTopDiameter":
-            p.topTopDiameter = event.value;
-            app.partsTop.update();
+        case "capSubdiv":
+            p.capSubdiv = event.value;
+            app.partsCap.update();
             break;
-        case "topBottomDiameter":
-            p.topBottomDiameter = event.value;
-            app.partsTop.update();
+        case "capTopDiameter":
+            p.capTopDiameter = event.value;
+            app.partsCap.update();
             break;
-        case "topHeight":
-            p.topHeight = event.value;
-            app.partsTop.update();
+        case "capBottomDiameter":
+            p.capBottomDiameter = event.value;
+            app.partsCap.update();
             break;
-        case "topColor":
-            p.topColor = event.value;
-            document.getElementById("topColorInput").value = p.topColor;
-            app.partsTop.update();
+        case "capHeight":
+            p.capHeight = event.value;
+            app.partsCap.update();
             break;
-        case "topColorInput":
-            p.topColor = event.value;
-            document.getElementById("topColor").value = p.topColor;
-            app.partsTop.update();
+        case "capNotchWidth":
+            p.capNotchWidth = event.value;
+            app.partsCap.update();
+            break;
+        case "capColor":
+            p.capColor = event.value;
+            document.getElementById("capColorInput").value = p.capColor;
+            app.partsCap.update();
+            break;
+        case "capColorInput":
+            p.capColor = event.value;
+            document.getElementById("capColor").value = p.capColor;
+            app.partsCap.update();
             break;
         case "bodyEnable":
             p.bodyEnable = event.value;
@@ -675,12 +955,14 @@ class App {
         case "bodyTopDiameter":
             p.bodyTopDiameter = event.value;
             app.partsBody.update();
-            app.partsTop.update();
+            app.partsCap.update();
             app.partsPointer.update();
+            app.partsLid.update();
             break;
         case "bodyTopBevel":
             p.bodyTopBevel = event.value;
             app.partsBody.update();
+            app.partsLid.update();
             break;
         case "bodyKnurlForm":
             p.bodyKnurlForm = event.value;
@@ -700,14 +982,15 @@ class App {
             break;
         case "bodyBottomDiameter":
             p.bodyBottomDiameter = event.value;
-            app.partsTop.update();
+            app.partsCap.update();
+            app.partsLid.update();
             app.partsBody.update();
             app.partsSkirt.update();
             app.partsPointer.update();
             break;
         case "bodyHeight":
             p.bodyHeight = event.value;
-            app.partsTop.update();
+            app.partsCap.update();
             app.partsBody.update();
             app.partsLid.update();
             app.partsSkirt.update();
@@ -740,6 +1023,7 @@ class App {
         case "skirtHeight":
             p.skirtHeight = event.value;
             app.partsSkirt.update();
+            app.partsPointer.update();
             break;
         case "skirtBevel":
             p.skirtBevel = event.value;
@@ -779,28 +1063,47 @@ class App {
             p.pointerBevel = event.value;
             app.partsPointer.update();
             break;
+        case "pointerColor":
+            p.pointerColor = event.value;
+            document.getElementById("pointerColorInput").value = p.pointerColor;
+            app.partsPointer.update();
+            break;
+        case "pointerColorInput":
+            p.pointerColor = event.value;
+            document.getElementById("pointerColor").value = p.pointerColor;
+            app.partsPointer.update();
+            break;
         }
         this.rotate();
     }
     init() {
         console.log("init");
+        this.setLocale();
         const elmShaftType = document.getElementById("shaftType");
-        for(let i=0; i < shaftFiles.length; ++i) {
-            const op = document.createElement("option");
-            op.innerText = shaftFiles[i];
-            elmShaftType.append(op);
+        let opt = "";
+        for(let i = 0; i < shaftFiles.length; ++i) {
+//            opt += `<option data-imgsrc="Shaft/${shaftFiles[i]}.png">${shaftFiles[i]}</option>`;
+            opt += `<option data-imgsrc="Shaft/${shaftFiles[i]}.png">${shaftFiles[i]}</option>`;
         }
+        elmShaftType.innerHTML = opt;
+//        $("#shaftType").gorillaDropdown({padding:0, width:200});
+
+//        elmShaftType.innerHTML = ``;
+//        for(let i=0; i < shaftFiles.length; ++i) {
+//            const op = document.createElement("option");
+//            op.innerHTML = `${shaftFiles[i]}<img src="Shaft/${shaftFiles[i].png}"/>`;
+//            elmShaftType.append(op);
+//        }
         this.renderer = new THREE.WebGLRenderer({
-            canvas: document.querySelector("#canvas"),
+            canvas: document.getElementById("canvas"),
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(this.width, this.height);
+        this.renderer.setSize(canvasWidth, canvasHeight);
 
         this.scene = new THREE.Scene();
-
         this.camera = new THREE.PerspectiveCamera(
             45,
-            this.width / this.height,
+            canvasWidth / canvasHeight,
             1,
             10000
         );
@@ -810,12 +1113,15 @@ class App {
 
         const light1 = new THREE.AmbientLight(0xffffff, 0.1);
         this.scene.add(light1);
-        const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-        light2.position.set(1, 1, 1);
+        const light2 = new THREE.PointLight(0xffffff, 0.5);
+        light2.position.set(12, 10, 60);
         this.scene.add(light2);
-        const light3 = new THREE.DirectionalLight(0xffffff, 0.5);
+        const light3 = new THREE.DirectionalLight(0xffffff, 0.3);
         light3.position.set(-1,-0.5,-1);
         this.scene.add(light3);
+        const light4 = new THREE.PointLight(0x8080ff, 1, 80);
+        light4.position.set(-25,-15,35);
+        this.scene.add(light4);
 
         this.material = new THREE.MeshPhongMaterial({color: 0xffffff, flatShading:true});
         this.material2 = new THREE.MeshPhongMaterial({color: 0x808080, flatShading:true});
@@ -824,8 +1130,8 @@ class App {
 
         this.partsShaft = new Shaft();
         this.partsShaft.update();
-        this.partsTop = new Top();
-        this.partsTop.update();
+        this.partsCap = new Cap(this);
+        this.partsCap.update();
         this.partsLid = new Lid();
         this.partsLid.update();
         this.partsBody = new Body();
@@ -838,17 +1144,32 @@ class App {
 
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.2;
-
-//        const axesHelper = new THREE.AxesHelper(35);
-//        axesHelper.position.set(0,0,0);
-//        this.scene.add(axesHelper);
         document.getElementById('version').innerText = paramCurrent.version;
 
         const shaftdir = "./Shaft";
-
-
         this.loadSettings();
         this.tick();
+    }
+    setLocale(lang) {
+        let strTab;
+        if(!lang)
+            lang = navigator.language;
+        strTab = localeStr[lang];
+        document.getElementById("langen").checked = (lang == "en");
+        document.getElementById("langja").checked = (lang == "ja");
+        strTab.forEach((key)=>{
+            const elm = document.getElementById(key.name);
+            switch(key.type) {
+            case "title":
+                if(elm)
+                    elm.title = key.val;
+                break;
+            case "text":
+                if(elm)
+                    elm.innerHTML = key.val;
+                break;
+            }
+        });
     }
     loadSettings() {
         const def = JSON.parse(localStorage.getItem('defaultParam'));
@@ -863,13 +1184,15 @@ class App {
         document.getElementById("shaftType").value = p.shaftType;
         document.getElementById("shaftFineAdj").setValue(p.shaftFineAdj, true);
         document.getElementById("shaftRotate").setValue(p.shaftRotate, true);
-        document.getElementById("topEnable").setValue(p.topEnable, true);
-        document.getElementById("topType").value = p.topType;
-        document.getElementById("topSubdiv").setValue(p.topSubdiv, true);
-        document.getElementById("topTopDiameter").setValue(p.topTopDiameter, true);
-        document.getElementById("topBottomDiameter").setValue(p.topBottomDiameter, true);
-        document.getElementById("topHeight").setValue(p.topHeight, true);
-        document.getElementById("topColor").value = document.getElementById("topColorInput").value = p.topColor;
+        document.getElementById("shaftHeight").setValue(p.shaftHeight, true);
+        document.getElementById("capEnable").setValue(p.capEnable, true);
+        document.getElementById("capType").value = p.capType;
+        document.getElementById("capSubdiv").setValue(p.capSubdiv, true);
+        document.getElementById("capTopDiameter").setValue(p.capTopDiameter, true);
+        document.getElementById("capBottomDiameter").setValue(p.capBottomDiameter, true);
+        document.getElementById("capHeight").setValue(p.capHeight, true);
+        document.getElementById("capNotchWidth").setValue(p.capNotchWidth, true);
+        document.getElementById("capColor").value = document.getElementById("capColorInput").value = p.capColor;
         document.getElementById("bodyEnable").setValue(p.bodyEnable, true);
         document.getElementById("bodySubdiv").setValue(p.bodySubdiv, true);
         document.getElementById("bodyTopDiameter").setValue(p.bodyTopDiameter, true);
@@ -892,6 +1215,7 @@ class App {
         document.getElementById("pointerWidth").setValue(p.pointerWidth, true);
         document.getElementById("pointerHeight").setValue(p.pointerHeight, true);
         document.getElementById("pointerBevel").setValue(p.pointerBevel, true);
+        document.getElementById("pointerColor").value = document.getElementById("pointerColorInput").value = p.pointerColor;
     }
     tick() {
         if(app.controls)
@@ -908,12 +1232,20 @@ class App {
         if(event)
             this.rot = event.value;
         const r = -this.rot * Math.PI / 180;
-        this.partsTop.mesh.rotation.set(0,0,r);
-        this.partsBody.mesh.rotation.set(0,0,r);
-        this.partsSkirt.mesh.rotation.set(0,0,r);
-        this.partsPointer.mesh.rotation.set(0,0,r);
+        if(this.partsCap)
+            for(let i = 0; i < this.partsCap.mesh.length; ++i)
+                this.partsCap.mesh[i].rotation.set(0,0,r);
+        if(this.partsLid)
+            for(let i = 0; i < this.partsLid.mesh.length; ++i)
+                this.partsLid.mesh[i].rotation.set(0,0,r);
+        if(this.partsBody)
+            this.partsBody.mesh[0].rotation.set(0,0,r);
+        if(this.partsSkirt)
+            this.partsSkirt.mesh[0].rotation.set(0,0,r);
+        if(this.partsPointer)
+            this.partsPointer.mesh[0].rotation.set(0,0,r);
         if(this.partsShaft.meshes[paramCurrent.params.shaftType])
-            this.partsShaft.meshes[paramCurrent.params.shaftType].rotation.set(0,0,r + Math.PI * paramCurrent.params.shaftRotate / 180);
+            this.partsShaft.meshes[paramCurrent.params.shaftType].rotation.set(0,0,r + Math.PI + Math.PI * paramCurrent.params.shaftRotate / 180);
     }
     save() {
         console.log('app.save');
@@ -947,7 +1279,7 @@ class App {
             reader.readAsText(link.files[0]);
         }
     }
-    saveDefault() {
+    setDefault() {
         console.log(paramCurrent);
         if(confirm('Remember current settings as default?\n現在の設定をデフォルト値として記憶しますか?')) {
             console.log("app.saveDefault()");
@@ -972,7 +1304,7 @@ window.clearSettings = () => {
     app.loadSettings();
     app.updateParams();
     app.partsShaft.update();
-    app.partsTop.update();
+    app.partsCap.update();
     app.partsBody.update();
     app.partsSkirt.update();
     app.partsPointer.update();
