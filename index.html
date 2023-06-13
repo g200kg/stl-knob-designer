@@ -4,43 +4,87 @@
 <title>STL Knob Designer</title>
 <style>
 html {
-    font-size:14px;
     margin:0;
     padding:0;
+    background:#006;
+    height:100%;
+    font-size:14px;
 }
 body {
+    margin:0;
+    height:100%;
+    padding:0;
     background:#222;
     color:#e0e0e0;
+}
+#header {
     margin:0;
     padding:0;
+    display:flex;
+    height:80px;
+    position:relative;
+    background:#445;
+    color:#ccf;
+    border:2px solid #445;
+}
+#header a {
+    color:#ccf;
+}
+#title {
+    padding:2px;
+}
+#subtitle {
+    padding-left:20px;
+    font-size:12px;
+}
+#logo {
+    width:180px;
+    height:80px;
+}
+h1 {
+    margin:auto 12px;
+    font-size:26px;
+}
+#menu {
+    background:#666686;
+    height:40px;
+}
+.cmdButton {
+    margin:4px 4px;
+    width: 160px;
+    height: 32px;
+    background:#ccd;
+    font-size:14px;
 }
 td {
     font-size: 13.5px;
     background: #223;
-/*    border: 1px solid #666;*/
     padding:0px 5px;
     text-align: center;
 }
 select {
     width: 150px;
 }
-button {
-    width: 160px;
-    height: 32px;
-    background:#ccd;
-    font-size:14px;
-}
 canvas {
-    border:1px solid #666666;
-    margin:5px;
+    width:100%;
+    height:100%;
+    background:#000;
+}
+#parampane {
     width:480px;
-    height:600px;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    margin:10px;
+    border:1px solid #666666;
+}
+.content {
+    position:relative;
+    background:#556;
+    margin:10px;
+    width:500px;
 }
 table {
-    margin:5px;
-}
-h1 {
-    margin:auto 20px;
+    margin:20px;
 }
 .param {
     vertical-align: middle;
@@ -56,41 +100,22 @@ h1 {
     color:#fff;
     border:none;
 }
-#header {
-    position:relative;
-    margin:0;
-    padding:0;
-    background:#445;
-    color:#ccf;
-}
-#header a {
-    color:#ccf;
-}
 #main {
-    position:relative;
     background:#445;
-    margin:10px auto;
     width:1050px;
+    height:calc(100% - 140px);
+    margin:5px auto;
+    display:flex;
+    justify-content: center;
+    position:relative;
     border:none;
-    padding:1px 10px;
-}
-#menu {
-    background:#666686;
-    padding:5px 10px;
-    margin:0;
+    border:1px solid #778;
 }
 #knobrot {
     position:absolute;
     left:12px;
     bottom:12px;
     width:200px;
-}
-#parampane {
-    width:480px;
-    height:600px;
-    overflow-y:scroll;
-    margin:5px;
-    border:1px solid #666666;
 }
 #aboutpane {
     display:none;
@@ -124,6 +149,8 @@ h1 {
     position:absolute;
     right:20px;
     top:20px;
+    width:120px;
+    height:36px;
 }
 </style>
 
@@ -133,91 +160,85 @@ h1 {
 
 <body>
 <div id="header">
-    <div style="display:flex">
-        <img src="images/g200kg160x80.png"/>
-        <div style="display:flex;flex-direction:column">    
-            <h1>STL Knob Designer</h1>
+    <img id="logo" src="images/g200kg160x80.png"/>
+    <div id="title">
+        <h1>STL Knob Designer</h1>
+        <div id="subtitle">
             <p style="margin:0px 40px">v <span id="version"></span> g200kg</p>
             <p style="margin:0px 40px">Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a> </p>
+            <p style="position:absolute;right:10px;bottom:0;vertical-align:middle;height:20px"><label><input id="langen" type="radio" name="lang" onchange="app.setLocale('en')"/>English</label> | <label><input id="langja" type="radio" name="lang" onchange="app.setLocale('ja')"/>日本語</label></p>
         </div>
     </div>
-    <p style="position:absolute;right:10px;bottom:0;vertical-align:middle;height:20px"><label><input id="langen" type="radio" name="lang" onchange="app.setLocale('en')"/>English</label> | <label><input id="langja" type="radio" name="lang" onchange="app.setLocale('ja')"/>日本語</label></p>
-    <!--<p style="position:absolute;right:10px;bottom:0"><a style="height:26px;width:100px" onclick="app.setLocale('en')">English</a> | <a style="height:26px;width:100px" onclick="app.setLocale('ja')">日本語</a></p>-->
 </div>
 <div id="menu">
-    <button id="cmdExport" onclick="app.export()">Export as STL</button>
-    <button id="cmdSave" onclick="app.save()">Save Param (JSON)</button>
-    <button id="cmdLoad" onclick="app.load()">Load Param (JSON)</button>
-    <button id="cmdSetDefault" onclick="app.setDefault()">Set Default</button>
-    <button id="cmdAbout" onclick="app.about()">About</button>
+    <button class="cmdButton" id="cmdExport" onclick="app.export()">Export as STL</button>
+    <button class="cmdButton" id="cmdSave" onclick="app.save()">Save Param (JSON)</button>
+    <button class="cmdButton" id="cmdLoad" onclick="app.load()">Load Param (JSON)</button>
+    <button class="cmdButton" id="cmdSetDefault" onclick="app.setDefault()">Set Default</button>
+    <button class="cmdButton" id="cmdAbout" onclick="app.about()">About</button>
 </div>
 <div id="main">
-<div style="display:flex;justify-content: center;">
-<div style="position:relative">
-    <canvas id="canvas" ></canvas>
-    <webaudio-slider id="knobrot" defvalue="0" min="-145" max="145" oninput="app.rotate(this)"></webaudio-slider>
-</div>
-<div id="parampane">
-    <div>
-    <table>
-        <tr><td rowspan="4"><webaudio-switch id="shaftEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="4" id="lbShaft">SHAFT</td><td id="lbShaftType">Type</td><td colspan="2"><select id="shaftType" onchange="editParam(this)">
-        </select></td></tr>
-        <tr><td id="lbShaftFineAdj">FineAdjust(%)</td><td style="width:80px"><webaudio-knob id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftFineAdj" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbShaftRotate">Rotate(deg)</td><td><webaudio-knob id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-knob></td><td><webaudio-param link="shaftRotate" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbShaftHeight">Height(mm)</td><td><webaudio-knob id="shaftHeight" oninput="editParam(this)" min="10" max="20" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftHeight" fontSize="14"></webaudio-param></td></tr>
-
-        <tr><td rowspan="7"><webaudio-switch id="capEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="7" id="lbCap">CAP</td><td id="lbCapType">Type</td><td colspan="2"><select id="capType" onchange="editParam(this)"><option>Cylinder</option><option>Sphere</option><option>Ring</option></td></tr>
-        <tr><td id="lbCapSubdiv">Subdivide</td><td><webaudio-knob id="capSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-knob></td><td><webaudio-param link="capSubdiv" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbCapTopDiameter">TopDiameter(%)</td><td><webaudio-knob id="capTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-knob></td><td><webaudio-param link="capTopDiameter" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbCapBottomDiameter">BottomDiameter(%)</td><td><webaudio-knob id="capBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-knob></td><td><webaudio-param link="capBottomDiameter" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbCapHeight">Height(mm)</td><td><webaudio-knob id="capHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="capHeight" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbCapNotchWidth">NotchWidth(mm)</td><td><webaudio-knob id="capNotchWidth" oninput="editParam(this)" min="0.0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="capNotchWidth" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbCapColor">Color</td><td><input type="color" id="capColor" oninput="editParam(this)"/></td><td><input id="capColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
-
-        <tr><td rowspan="10"><webaudio-switch id="bodyEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="10" id="lbBody">BODY</td><td id="lbBodySubdiv">Subdivide</td><td><webaudio-knob id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-knob></td><td><webaudio-param link="bodySubdiv" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyTopDiameter">TopDiameter(%)</td><td><webaudio-knob id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-knob></td><td><webaudio-param link="bodyTopDiameter" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyTopBevel">TopBevel(mm)</td><td><webaudio-knob id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></webaudio-knob></td><td><webaudio-param link="bodyTopBevel" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyBottomDiameter">BottomDiameter(mm)</td><td><webaudio-knob id="bodyBottomDiameter" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyBottomDiameter" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyHeight">Height(mm)</td><td><webaudio-knob id="bodyHeight" oninput="editParam(this)" min="12" max="50" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyHeight" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyKnurlForm">KnurlForm</td><td><webaudio-knob id="bodyKnurlForm" oninput="editParam(this)" min="0" max="2" step="1" tracking="abs" conv="['None','Sin','Sqr'][x]"></webaudio-knob></td><td><webaudio-param link="bodyKnurlForm" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyKnurlNum">KnurlNum</td><td><webaudio-knob id="bodyKnurlNum" oninput="editParam(this)" min="0" max="36" step="1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlNum" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyKnurlDepth">KnurlDepth(mm)</td><td><webaudio-knob id="bodyKnurlDepth" oninput="editParam(this)" min="0" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlDepth" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyKnurlWidth">KnurlWidth</td><td><webaudio-knob id="bodyKnurlWidth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlWidth" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbBodyColor">Color</td><td><input type="color" id="bodyColor" oninput="editParam(this)"/></td><td><input id="bodyColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
-
-        <tr><td rowspan="5"><webaudio-switch id="skirtEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5" id="lbSkirt">SKIRT</td><td id="lbSkirtSubdiv">Subdivide</td><td><webaudio-knob id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-knob></td><td><webaudio-param link="skirtSubdiv" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbSkirtDiameter">Diameter(mm)</td><td><webaudio-knob id="skirtDiameter" oninput="editParam(this)" min="0" max="10.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtDiameter" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbSkirtBevel">Bevel(mm)</td><td><webaudio-knob id="skirtBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtBevel" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbSkirtHeight">Height(mm)</td><td><webaudio-knob id="skirtHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtHeight" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbSkirtColor">Color</td><td><input type="color" id="skirtColor" oninput="editParam(this)"/></td><td><input id="skirtColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
-
-        <tr><td rowspan="5"><webaudio-switch id="pointerEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5" id="lbPointer">POINTER</td><td id="lbPointerLength">Length(mm)</td><td><webaudio-knob id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerLength" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbPointerWidth">Width(mm)</td><td><webaudio-knob id="pointerWidth" oninput="editParam(this)" min="0.5" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerWidth" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbPointerHeight">Height(mm)</td><td><webaudio-knob id="pointerHeight" oninput="editParam(this)" min="-0.1" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerHeight" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbPointerBevel">Bevel(mm)</td><td><webaudio-knob id="pointerBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerBevel" fontSize="14"></webaudio-param></td></tr>
-        <tr><td id="lbPointerColor">Color</td><td><input type="color" id="pointerColor" oninput="editParam(this)"/></td><td><input id="pointerColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
-    </table>
+    <div class="content">
+            <canvas id="canvas"></canvas>
+            <webaudio-slider id="knobrot" defvalue="0" min="-145" max="145" oninput="app.rotate(this)"></webaudio-slider>
     </div>
-    </div>
-</div>
-<div id="aboutpane">
-<div id="about">
-<div>
-<div id="aboutcontent">
-<h2>STL Knob Designer</h2>
+    <div class="content" id="parampane">
+        <table>
+            <tr><td rowspan="4"><webaudio-switch id="shaftEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="4" id="lbShaft">SHAFT</td><td id="lbShaftType">Type</td><td colspan="2"><select id="shaftType" onchange="editParam(this)">
+            </select></td></tr>
+            <tr><td id="lbShaftFineAdj">FineAdjust(%)</td><td style="width:80px"><webaudio-knob id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftFineAdj" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbShaftRotate">Rotate(deg)</td><td><webaudio-knob id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-knob></td><td><webaudio-param link="shaftRotate" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbShaftHeight">Height(mm)</td><td><webaudio-knob id="shaftHeight" oninput="editParam(this)" min="10" max="20" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftHeight" fontSize="14"></webaudio-param></td></tr>
 
-<span id="abouttext"></span>
-<hr/>
-<img src="Shaft/Knob.png"/>
-<hr/>
-Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a>
-<hr/>
-g200kg
-</div>
-</div>
-<button id="aboutclose" onclick="document.getElementById('aboutpane').style.display='none'">Close</button>
-</div>
-</div>
+            <tr><td rowspan="7"><webaudio-switch id="capEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="7" id="lbCap">CAP</td><td id="lbCapType">Type</td><td colspan="2"><select id="capType" onchange="editParam(this)"><option>Cylinder</option><option>Sphere</option><option>Ring</option></td></tr>
+            <tr><td id="lbCapSubdiv">Subdivide</td><td><webaudio-knob id="capSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-knob></td><td><webaudio-param link="capSubdiv" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbCapTopDiameter">TopDiameter(%)</td><td><webaudio-knob id="capTopDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-knob></td><td><webaudio-param link="capTopDiameter" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbCapBottomDiameter">BottomDiameter(%)</td><td><webaudio-knob id="capBottomDiameter" oninput="editParam(this)" min="0" max="100" step="1"></webaudio-knob></td><td><webaudio-param link="capBottomDiameter" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbCapHeight">Height(mm)</td><td><webaudio-knob id="capHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="capHeight" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbCapNotchWidth">NotchWidth(mm)</td><td><webaudio-knob id="capNotchWidth" oninput="editParam(this)" min="0.0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="capNotchWidth" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbCapColor">Color</td><td><input type="color" id="capColor" oninput="editParam(this)"/></td><td><input id="capColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
+
+            <tr><td rowspan="10"><webaudio-switch id="bodyEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="10" id="lbBody">BODY</td><td id="lbBodySubdiv">Subdivide</td><td><webaudio-knob id="bodySubdiv" oninput="editParam(this)" min="3" max="180" step="1"></webaudio-knob></td><td><webaudio-param link="bodySubdiv" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyTopDiameter">TopDiameter(%)</td><td><webaudio-knob id="bodyTopDiameter" oninput="editParam(this)" min="0" max="200" step="1"></webaudio-knob></td><td><webaudio-param link="bodyTopDiameter" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyTopBevel">TopBevel(mm)</td><td><webaudio-knob id="bodyTopBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></webaudio-knob></td><td><webaudio-param link="bodyTopBevel" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyBottomDiameter">BottomDiameter(mm)</td><td><webaudio-knob id="bodyBottomDiameter" oninput="editParam(this)" min="10" max="50" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyBottomDiameter" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyHeight">Height(mm)</td><td><webaudio-knob id="bodyHeight" oninput="editParam(this)" min="12" max="50" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyHeight" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyKnurlForm">KnurlForm</td><td><webaudio-knob id="bodyKnurlForm" oninput="editParam(this)" min="0" max="2" step="1" tracking="abs" conv="['None','Sin','Sqr'][x]"></webaudio-knob></td><td><webaudio-param link="bodyKnurlForm" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyKnurlNum">KnurlNum</td><td><webaudio-knob id="bodyKnurlNum" oninput="editParam(this)" min="0" max="36" step="1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlNum" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyKnurlDepth">KnurlDepth(mm)</td><td><webaudio-knob id="bodyKnurlDepth" oninput="editParam(this)" min="0" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlDepth" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyKnurlWidth">KnurlWidth</td><td><webaudio-knob id="bodyKnurlWidth" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="bodyKnurlWidth" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbBodyColor">Color</td><td><input type="color" id="bodyColor" oninput="editParam(this)"/></td><td><input id="bodyColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
+
+            <tr><td rowspan="5"><webaudio-switch id="skirtEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5" id="lbSkirt">SKIRT</td><td id="lbSkirtSubdiv">Subdivide</td><td><webaudio-knob id="skirtSubdiv" oninput="editParam(this)" min="3" max="72" step="1"></webaudio-knob></td><td><webaudio-param link="skirtSubdiv" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbSkirtDiameter">Diameter(mm)</td><td><webaudio-knob id="skirtDiameter" oninput="editParam(this)" min="0" max="10.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtDiameter" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbSkirtBevel">Bevel(mm)</td><td><webaudio-knob id="skirtBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtBevel" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbSkirtHeight">Height(mm)</td><td><webaudio-knob id="skirtHeight" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="skirtHeight" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbSkirtColor">Color</td><td><input type="color" id="skirtColor" oninput="editParam(this)"/></td><td><input id="skirtColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
+
+            <tr><td rowspan="5"><webaudio-switch id="pointerEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="5" id="lbPointer">POINTER</td><td id="lbPointerLength">Length(mm)</td><td><webaudio-knob id="pointerLength" oninput="editParam(this)" min="0" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerLength" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbPointerWidth">Width(mm)</td><td><webaudio-knob id="pointerWidth" oninput="editParam(this)" min="0.5" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerWidth" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbPointerHeight">Height(mm)</td><td><webaudio-knob id="pointerHeight" oninput="editParam(this)" min="-0.1" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerHeight" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbPointerBevel">Bevel(mm)</td><td><webaudio-knob id="pointerBevel" oninput="editParam(this)" min="0" max="5.0" step="0.1"></webaudio-knob></td><td><webaudio-param link="pointerBevel" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbPointerColor">Color</td><td><input type="color" id="pointerColor" oninput="editParam(this)"/></td><td><input id="pointerColorInput" class="paramcolor" onchange="editParam(this)" style="font-size:14px"/></td></tr>
+        </table>
+    </div>
+    <div id="aboutpane">
+        <div id="about">
+            <div>
+                <div id="aboutcontent">
+                    <h2>STL Knob Designer</h2>
+                    <span id="abouttext"></span>
+                    <hr/>
+                    <img src="Shaft/Knob.png"/>
+                    <hr/>
+                    Repository : <a href="https://github.com/g200kg/stl-knob-designer" target="_blank">https://github.com/g200kg/stl-knob-designer</a>
+                    <hr/>
+                    g200kg
+                </div>
+            </div>
+            <button id="aboutclose" onclick="document.getElementById('aboutpane').style.display='none'">Close</button>
+        </div>
+    </div>
 </div>
 <script type="importmap">
     {
@@ -232,6 +253,7 @@ g200kg
     WebAudioControlsOptions={
         knobDiameter:36,
         switchHeight:28,
+        switchColors:"#e00;#223;#fcc",
         sliderWidth:180,
         paramWidth:60
     }
@@ -345,7 +367,7 @@ const shaftFiles = [
 ];
 const paramDefault = {
     program: "STLKnobDesigner",
-    version: "0.4.0",
+    version: "0.4.1",
     params: {
         shaftEnable: 1,
         shaftType: shaftFiles[0],
@@ -564,21 +586,21 @@ class Cap {
                     let r3x = nw*sin;
                     let r3y = nw*cos;
                     let z3 = z2;
-                    if(th >= 0 && th < Math.PI*0.5) {
+                    if(t*4 < p.capSubdiv) {
                         r1x = Math.max(nw, r1x);
                         r1y = Math.sqrt(rb*rb - r1x*r1x);
                         r2x = Math.max(nw, r2x);
                         r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
                         r3x = Math.max(nw, r3x);
-                        r3y = Math.sqrt(rb2*rb2 - r3x*r3x);
+                        r3y = Math.sqrt(nw*nw - r3x*r3x);
                     }
-                    if(th >= Math.PI*1.5) {
+                    if(t*4 >= p.capSubdiv*3) {
                         r1x = Math.min(-nw, r1x);
                         r1y = Math.sqrt(rb*rb - r1x*r1x);
                         r2x = Math.min(-nw, r2x);
                         r2y = Math.sqrt(rb2*rb2 - r2x*r2x);
                         r3x = Math.min(-nw, r3x);
-                        r3y = Math.sqrt(rb2*rb2 - r3x*r3x);
+                        r3y = Math.sqrt(nw*nw - r3x*r3x);
                     }
                     this.rect.addRect(r1x, r1y, z1,   r2x, r2y, z2,    r3x,r3y,z2,    r3x,r3y,z1);
                 }
@@ -794,10 +816,11 @@ class Skirt {
     }
     getGeo() {
         const p = paramCurrent.params;
+        const br = Math.max((p.bodyBottomDiameter + p.skirtDiameter)*0.5, 6);
         this.tube.clear();
-        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.8, z:-p.skirtHeight});
-        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter)*0.5, r2:5.8, z:-p.skirtBevel});
-        this.tube.addCircle({r1:(p.bodyBottomDiameter + p.skirtDiameter - p.skirtBevel * 2)*0.5, r2:5.8, z:0.0});
+        this.tube.addCircle({r1:br, r2:5.8, z:-p.skirtHeight});
+        this.tube.addCircle({r1:br, r2:5.8, z:-p.skirtBevel});
+        this.tube.addCircle({r1:br - p.skirtBevel, r2:5.8, z:0.0});
         this.geo = this.tube.createGeo(p.skirtSubdiv, 0, 0);
     }
     update() {
@@ -1097,8 +1120,13 @@ class App {
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById("canvas"),
         });
+        console.log(canvas.width, canvas.height);
+        console.log(document.getElementById("canvas").parentNode.clientHeight)
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(canvasWidth, canvasHeight);
+
+        this.canvasNode = document.getElementById("canvas");
+        this.renderer.setSize(this.canvasNode.parentNode.clientWidth, this.canvasNode.parentNode.clientHeight);
+//        this.renderer.setSize(canvasWidth, canvasHeight);
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(
@@ -1298,6 +1326,14 @@ class App {
         link.click();
         URL.revokeObjectURL(link.href);
     }
+    resize() {
+        console.log("resize");
+        const w = this.canvasNode.parentNode.clientWidth;
+        const h = this.canvasNode.parentNode.clientHeight;
+        this.renderer.setSize(w, h);
+        this.camera.aspect = w / h;
+        this.camera.updateProjectionMatrix();
+    }
 }
 window.clearSettings = () => {
     localStorage.clear();
@@ -1319,7 +1355,9 @@ window.addEventListener("DOMContentLoaded", ()=>{
     window.app.init();
     window.app.updateParams();
 });
-
+window.addEventListener("resize", ()=> {
+    window.app.resize();
+});
 </script>
 </body>
 </html>
