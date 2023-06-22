@@ -186,7 +186,7 @@ table {
         <table>
             <tr><td rowspan="4"><webaudio-switch id="shaftEnable" value="1" onchange="editParam(this)"></webaudio-switch></td><td rowspan="4" id="lbShaft">SHAFT</td><td id="lbShaftType">Type</td><td colspan="2"><select id="shaftType" onchange="editParam(this)">
             </select></td></tr>
-            <tr><td id="lbShaftFineAdj">FineAdjust(%)</td><td style="width:80px"><webaudio-knob id="shaftFineAdj" oninput="editParam(this)" min="-5" max="5" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftFineAdj" fontSize="14"></webaudio-param></td></tr>
+            <tr><td id="lbShaftFineAdj">FineAdjust(%)</td><td style="width:80px"><webaudio-knob id="shaftFineAdj" oninput="editParam(this)" min="-5" max="10" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftFineAdj" fontSize="14"></webaudio-param></td></tr>
             <tr><td id="lbShaftRotate">Rotate(deg)</td><td><webaudio-knob id="shaftRotate" oninput="editParam(this)" min="-180" max="180" step="15"></webaudio-knob></td><td><webaudio-param link="shaftRotate" fontSize="14"></webaudio-param></td></tr>
             <tr><td id="lbShaftHeight">Height(mm)</td><td><webaudio-knob id="shaftHeight" oninput="editParam(this)" min="10" max="20" step="0.1"></webaudio-knob></td><td><webaudio-param link="shaftHeight" fontSize="14"></webaudio-param></td></tr>
 
@@ -367,7 +367,7 @@ const shaftFiles = [
 ];
 const paramDefault = {
     program: "STLKnobDesigner",
-    version: "0.4.1",
+    version: "0.4.2",
     params: {
         shaftEnable: 1,
         shaftType: shaftFiles[0],
@@ -1138,6 +1138,7 @@ class App {
         this.camera.position.set(50, 30, 80);
         this.camera.lookAt(0, 0, 0);
         this.rot = 0;
+        this.resize();
 
         const light1 = new THREE.AmbientLight(0xffffff, 0.1);
         this.scene.add(light1);
@@ -1153,7 +1154,7 @@ class App {
 
         this.material = new THREE.MeshPhongMaterial({color: 0xffffff, flatShading:true});
         this.material2 = new THREE.MeshPhongMaterial({color: 0x808080, flatShading:true});
-    
+
         this.stlExporter = new STLExporter();
 
         this.partsShaft = new Shaft();
